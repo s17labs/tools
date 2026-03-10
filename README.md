@@ -10,6 +10,9 @@ A collection of lightweight, high-performance utility tools developed by **s17 L
 ## Vision
 Our goal is to build a suite of essential utilities for creators and developers that are fast, open-source, and require zero installation.
 
+## Contributing
+We welcome contributions to improve our existing tools or add new ones to the lab. Please see our [CONTRIBUTING.md](./CONTRIBUTING.md) for guidelines on how to get started. By contributing to this project, you agree that your work will be licensed under the terms of the MIT License.
+
 ## License
 This software is released under the terms of the MIT License. See the [LICENSE](https://github.com/s17labs/tools/blob/main/LICENSE) for further information.
 
