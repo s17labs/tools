@@ -5,6 +5,8 @@ A collection of lightweight, high-performance utility tools developed by **s17 L
 ## Available Tools
 
 * **[Image Resizer](https://s17labs.github.io/tools/image-resizer)**: Batch resize images with aspect ratio locking and high-quality output. ([Source](./image-resizer))
+* **[SVG to PNG](https://s17labs.github.io/tools/svg-to-png)**: Convert vector graphics to high-quality transparent PNGs locally in your browser. ([Source](./svg-to-png))
+* **[Case Converter](https://s17labs.github.io/tools/case-converter)**: Convert strings between various programming conventions and writing formats. ([Source](./svg-to-png))
 * *More tools coming soon...*
 
 ## Vision
