@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Case Converter | s17 Labs Tools</title>
+    
+    <meta name="description" content="A fast, free, and secure case converter by s17 Labs. Convert text to camelCase, snake_case, PascalCase, and more instantly in your browser.">
+    
+    <link rel="icon" type="image/x-icon" href="https://s17labs.github.io/src/assets/favicon.ico">
+    <link href="https://fonts.googleapis.com/css2?family=Aldrich&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <style>
+        :root {
+            --bg-color: #0e0e10;
+            --accent: #ff4136;
+            --accent-muted: rgba(255, 65, 54, 0.1);
+            --text-primary: #f1f1f1;
+            --text-secondary: #868686;
+            --card-bg: #18181b;
+            --input-bg: #27272a;
+            --border: #3f3f46;
+            --blue-action: #0074d9;
+            --green-action: #2ecc40;
+            --red-action: #ff4136;
+        }
+
+        * { box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            align-items: center;
+            padding: 20px;
+        }
+
+        h1 { font-family: 'Aldrich', sans-serif; margin: 0 0 1.5rem 0; font-size: 1.75rem; text-align: center; letter-spacing: 1px; color: var(--text-primary); }
+        h1 a { text-decoration: none; color: inherit; }
+
+        .container {
+            background: var(--card-bg);
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            width: 100%;
+            max-width: 800px;
+            margin-bottom: 25px;
+            border: 1px solid var(--border);
+        }
+
+        .editor-container { position: relative; width: 100%; margin-bottom: 20px; }
+        
+        textarea {
+            width: 100%;
+            height: 240px;
+            background: var(--bg-color);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-family: 'Fira Code', monospace;
+            font-size: 15px;
+            padding: 15px 55px 15px 15px;
+            resize: vertical;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        textarea:focus { border-color: var(--accent); }
+
+        /* Action Buttons Overlay */
+        .input-overlay-actions {
+            position: absolute;
+            right: 12px;
+            bottom: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            z-index: 10;
+        }
+
+        .overlay-btn {
+            background-color: var(--input-bg);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            border-radius: 6px;
+            width: 38px;
+            height: 38px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+
+        .overlay-btn:hover { color: var(--text-primary); border-color: var(--text-secondary); }
+
+        /* Tooltip Toast - Matched to s17 style */
+        .overlay-btn::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            right: 48px;
+            background: #000;
+            color: #fff;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-family: -apple-system, sans-serif;
+            font-weight: 600;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.2s ease;
+            transform: translateX(10px);
+            border: 1px solid var(--border);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+        }
+
+        .overlay-btn:hover::after { opacity: 1; transform: translateX(0); }
+
+        /* Success States */
+        .success-paste { color: var(--blue-action) !important; border-color: var(--blue-action) !important; background: rgba(0, 116, 217, 0.1) !important; }
+        .success-copy { color: var(--green-action) !important; border-color: var(--green-action) !important; background: rgba(46, 204, 64, 0.1) !important; }
+        .success-clear { color: var(--red-action) !important; border-color: var(--red-action) !important; background: rgba(255, 65, 54, 0.1) !important; }
+
+        /* Action Grid */
+        .action-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+
+        .btn {
+            padding: 14px 8px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-weight: 500;
+            font-family: 'Fira Code', monospace;
+            cursor: pointer;
+            font-size: 0.8rem;
+            background: var(--input-bg);
+            color: var(--text-primary);
+            transition: background 0.2s, border-color 0.2s;
+            text-align: center;
+        }
+        .btn:hover { background: var(--accent-muted); border-color: var(--accent); color: var(--accent); }
+
+        .btn-more {
+            background: var(--card-bg);
+            border: 1px solid var(--accent);
+            color: var(--accent);
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .extra-cases { display: none; }
+        .show-extra .extra-cases { display: contents; }
+
+        .info-box {
+            text-align: center;
+            padding: 24px;
+            background: var(--accent-muted);
+            border-radius: 12px;
+            width: 100%;
+            max-width: 800px;
+            border: 1px solid rgba(255, 65, 54, 0.2);
+        }
+
+        .info-box h3 { font-size: 1.1rem; font-weight: 700; margin: 0 0 8px 0; color: var(--accent); }
+        .info-box p { font-size: 0.9rem; margin-bottom: 16px; color: var(--text-primary); line-height: 1.4; }
+
+        .btn-secondary {
+            display: inline-block;
+            padding: 10px 20px;
+            background: transparent;
+            color: var(--accent);
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            border: 2px solid var(--accent);
+            transition: all 0.2s ease;
+        }
+        .btn-secondary:hover { background: rgba(255, 65, 54, 0.1); }
+        .btn-secondary:active { background: var(--accent); color: #fff; }
+
+        footer {
+            margin-top: auto;
+            text-align: center;
+            padding: 40px 0 20px 0;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .stealth-link { color: inherit; text-decoration: none; font-weight: 600; }
+        .stealth-link:hover { color: var(--accent); text-decoration: underline; }
+
+        footer a.source-link { 
+            color: var(--accent);
+            text-decoration: none; 
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 10px;
+        }
+        footer a.source-link:hover { text-decoration: underline; }
+
+        @media (max-width: 600px) {
+            .action-grid { grid-template-columns: repeat(2, 1fr); }
+            .overlay-btn::after { display: none; }
+        }
+    </style>
+</head>
+<body id="body-wrapper">
+
+<div class="container">
+    <h1><a href="../">Case Converter</a></h1>
+    
+    <div class="editor-container">
+        <textarea id="text-input" placeholder="Enter text here..."></textarea>
+        
+        <div class="input-overlay-actions">
+            <button class="overlay-btn" id="paste-btn" data-tooltip="Paste Text">
+                <i class="fa-solid fa-paste"></i>
+            </button>
+            <button class="overlay-btn" id="copy-btn" data-tooltip="Copy Text">
+                <i class="fa-solid fa-copy"></i>
+            </button>
+            <button class="overlay-btn" id="clear-btn" data-tooltip="Clear All">
+                <i class="fa-solid fa-trash-can"></i>
+            </button>
+        </div>
+    </div>
+
+    <div class="action-grid" id="main-grid">
+        <button class="btn" onclick="convert('lower')">lowercase</button>
+        <button class="btn" onclick="convert('upper')">UPPERCASE</button>
+        <button class="btn" onclick="convert('camel')">camelCase</button>
+        <button class="btn" onclick="convert('pascal')">PascalCase</button>
+        <button class="btn" onclick="convert('snake')">snake_case</button>
+        <button class="btn" onclick="convert('kebab')">kebab-case</button>
+        <button class="btn" onclick="convert('title')">Title Case</button>
+        
+        <button class="btn btn-more" id="more-toggle" onclick="toggleMore()">
+            <i class="fa-solid fa-chevron-down"></i> More
+        </button>
+
+        <div class="extra-cases">
+            <button class="btn" onclick="convert('screaming')">SCREAMING_SNAKE</button>
+            <button class="btn" onclick="convert('cobol')">COBOL-CASE</button>
+            <button class="btn" onclick="convert('sentence')">Sentence case</button>
+            <button class="btn" onclick="convert('dot')">dot.case</button>
+            <button class="btn" onclick="convert('path')">path/case</button>
+            <button class="btn" onclick="convert('train')">Train-Case</button>
+            <button class="btn" onclick="convert('flat')">flatcase</button>
+            <button class="btn" onclick="convert('upperflat')">UPPERFLAT</button>
+        </div>
+    </div>
+</div>
+
+<div class="info-box">
+    <h3>More s17 Labs Tools</h3>
+    <p>Discover more free and powerful utility tools designed for creators and developers.</p>
+    <a href="../" class="btn-secondary">View More Tools</a>
+</div>
+
+<footer>
+    <p>&copy; <span id="year"></span> <a href="https://s17labs.github.io" class="stealth-link">s17 Labs</a></p>
+    <a href="https://github.com/s17labs/tools" class="source-link"><i class="fa-brands fa-github"></i> Source Code</a>
+</footer>
+
+<script>
+    const inputArea = document.getElementById('text-input');
+    const wrapper = document.getElementById('body-wrapper');
+    const toggleBtn = document.getElementById('more-toggle');
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    function toggleMore() {
+        const isShowing = wrapper.classList.toggle('show-extra');
+        toggleBtn.innerHTML = isShowing 
+            ? '<i class="fa-solid fa-chevron-up"></i> Less' 
+            : '<i class="fa-solid fa-chevron-down"></i> More';
+    }
+
+    function convert(type) {
+        let str = inputArea.value.trim();
+        if (!str) return;
+
+        const words = str.replace(/([a-z])([A-Z])/g, '$1 $2')
+                         .replace(/[._\-\/]/g, ' ')
+                         .toLowerCase()
+                         .split(/\s+/)
+                         .filter(w => w.length > 0);
+
+        let result = "";
+        switch(type) {
+            case 'lower': result = str.toLowerCase(); break;
+            case 'upper': result = str.toUpperCase(); break;
+            case 'camel': result = words.map((w, i) => i === 0 ? w : w.charAt(0).toUpperCase() + w.slice(1)).join(''); break;
+            case 'pascal': result = words.map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(''); break;
+            case 'snake': result = words.join('_'); break;
+            case 'kebab': result = words.join('-'); break;
+            case 'title': result = words.map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' '); break;
+            case 'screaming': result = words.join('_').toUpperCase(); break;
+            case 'cobol': result = words.join('-').toUpperCase(); break;
+            case 'sentence': result = words.map((w, i) => i === 0 ? w.charAt(0).toUpperCase() + w.slice(1) : w).join(' '); break;
+            case 'dot': result = words.join('.'); break;
+            case 'path': result = words.join('/'); break;
+            case 'train': result = words.map(w => w.charAt(0).toUpperCase() + w.slice(1)).join('-'); break;
+            case 'flat': result = words.join(''); break;
+            case 'upperflat': result = words.join('').toUpperCase(); break;
+        }
+        inputArea.value = result;
+    }
+
+    function flashBtn(id, cls) {
+        const btn = document.getElementById(id);
+        const icon = btn.querySelector('i');
+        const originalIcon = icon.className;
+        btn.classList.add(cls);
+        icon.className = 'fa-solid fa-check';
+        setTimeout(() => { 
+            btn.classList.remove(cls); 
+            icon.className = originalIcon;
+        }, 1000);
+    }
+
+    document.getElementById('paste-btn').onclick = async () => {
+        try {
+            const text = await navigator.clipboard.readText();
+            if (text) { inputArea.value = text; flashBtn('paste-btn', 'success-paste'); }
+        } catch (e) { alert("Clipboard permission required."); }
+    };
+    document.getElementById('copy-btn').onclick = () => {
+        if (!inputArea.value) return;
+        navigator.clipboard.writeText(inputArea.value);
+        flashBtn('copy-btn', 'success-copy');
+    };
+    document.getElementById('clear-btn').onclick = () => {
+        inputArea.value = "";
+        flashBtn('clear-btn', 'success-clear');
+    };
+</script>
+</body>
+</html>
