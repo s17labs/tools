@@ -1,0 +1,1052 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>m² Calc</title>
+<meta name="description" content="A fast, mobile-friendly construction cost calculator. Enter your area, rate per m², and get an instant cost breakdown.">
+<link rel="icon" type="image/x-icon" href="https://s17labs.github.io/tools/m2-calc/favicon.ico">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ── THEMES ─────────────────────────────────────────────── */
+:root {
+  --amber: #f59e0b;
+  --amber-hot: #fbbf24;
+  --red: #ef4444;
+  --green: #22c55e;
+  --radius: 10px;
+}
+[data-theme="dark"] {
+  --bg: #141820;
+  --bg2: #0f1219;
+  --card: #1e2435;
+  --border: #2a3248;
+  --concrete: #7a8aa0;
+  --chalk: #dde6f0;
+  --overlay: rgba(0,0,0,0.78);
+  --splash-bg: #1a2030;
+  --input-bg: #141820;
+  --total-text: #141820;
+}
+[data-theme="light"] {
+  --bg: #f0f2f7;
+  --bg2: #e4e8f0;
+  --card: #ffffff;
+  --border: #d0d7e8;
+  --concrete: #6b7a99;
+  --chalk: #1a2035;
+  --overlay: rgba(0,0,0,0.55);
+  --splash-bg: #ffffff;
+  --input-bg: #f5f7fc;
+  --total-text: #141820;
+}
+
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+html { font-size:16px; }
+body {
+  background: var(--bg);
+  color: var(--chalk);
+  font-family: 'Barlow', sans-serif;
+  min-height: 100dvh;
+  transition: background 0.25s, color 0.25s;
+}
+
+/* ── HEADER ─────────────────────────────────────────────── */
+header {
+  background: var(--card);
+  border-bottom: 2.5px solid var(--amber);
+  padding: 0 14px;
+  height: 54px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  transition: background 0.25s;
+}
+.logo {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 900;
+  font-size: 21px;
+  letter-spacing: 2px;
+  color: var(--amber);
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+.logo em { color: var(--chalk); font-style: normal; transition: color 0.25s; }
+.header-controls { display: flex; align-items: center; gap: 6px; }
+
+/* ── ICON BUTTONS (theme + lang) ────────────────────────── */
+.hbtn {
+  position: relative;
+  background: var(--bg2);
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  color: var(--concrete);
+  cursor: pointer;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  padding: 6px 10px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  transition: border-color 0.15s, color 0.15s, background 0.25s;
+  white-space: nowrap;
+  user-select: none;
+}
+.hbtn:active { border-color: var(--amber); color: var(--amber); }
+.hbtn svg { flex-shrink: 0; }
+
+/* ── DROPDOWN ────────────────────────────────────────────── */
+.dropdown {
+  display: none;
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  background: var(--card);
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+  min-width: 170px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.35);
+  z-index: 200;
+}
+.dropdown.open { display: block; animation: dropIn 0.15s ease; }
+@keyframes dropIn { from { opacity:0; transform:translateY(-6px); } to { opacity:1; transform:translateY(0); } }
+.dd-item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 11px 14px;
+  cursor: pointer;
+  font-size: 14px;
+  color: var(--concrete);
+  border-bottom: 1px solid var(--border);
+  transition: background 0.1s, color 0.1s;
+  user-select: none;
+}
+.dd-item:last-child { border-bottom: none; }
+.dd-item:hover, .dd-item.active { background: rgba(245,158,11,0.09); color: var(--chalk); }
+.dd-item.active .dd-check { color: var(--amber); }
+.dd-check { margin-left: auto; font-size: 13px; color: transparent; }
+.dd-icon { font-size: 16px; flex-shrink: 0; }
+
+/* ── PAGE ────────────────────────────────────────────────── */
+.page { padding: 18px 14px 52px; max-width: 600px; margin: 0 auto; }
+
+/* ── SECTION LABEL ───────────────────────────────────────── */
+.sec {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 10px; font-weight: 800;
+  letter-spacing: 3px; text-transform: uppercase;
+  color: var(--amber);
+  margin-bottom: 7px; padding-left: 2px;
+}
+
+/* ── CARD ─────────────────────────────────────────────────── */
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 15px 13px;
+  margin-bottom: 11px;
+  transition: background 0.25s, border-color 0.25s;
+}
+.mb { margin-bottom: 11px; }
+
+/* ── INPUTS ───────────────────────────────────────────────── */
+label {
+  display: block;
+  font-size: 11px; font-weight: 600;
+  letter-spacing: 1.5px; text-transform: uppercase;
+  color: var(--concrete);
+  margin-bottom: 5px;
+}
+input, select {
+  width: 100%;
+  background: var(--input-bg);
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  color: var(--chalk);
+  font-family: 'Barlow', sans-serif;
+  font-size: 16px;
+  padding: 11px 13px;
+  outline: none;
+  transition: border-color 0.15s, background 0.25s;
+  -webkit-appearance: none; appearance: none;
+}
+input:focus, select:focus { border-color: var(--amber); }
+input::placeholder { color: var(--concrete); opacity: .55; }
+select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%237a8aa0' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 13px center; padding-right: 36px;
+}
+select option { background: var(--card); }
+
+.r2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+/* Rate wrap */
+.rate-wrap { position: relative; }
+.rate-wrap .pre { position: absolute; left: 13px; top: 50%; transform: translateY(-50%); font-size: 16px; color: var(--amber); font-weight: 600; pointer-events: none; }
+.rate-wrap input { padding-left: 25px; }
+.rate-wrap .suf { position: absolute; right: 11px; top: 50%; transform: translateY(-50%); font-family: 'Barlow Condensed', sans-serif; font-size: 11px; letter-spacing: 1px; color: var(--concrete); pointer-events: none; }
+
+/* ── TABS ─────────────────────────────────────────────────── */
+.tabs { display: grid; grid-template-columns: repeat(3,1fr); gap: 6px; margin-bottom: 13px; }
+.tab {
+  background: var(--input-bg);
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  color: var(--concrete);
+  cursor: pointer;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 12px; font-weight: 800; letter-spacing: 1px;
+  padding: 9px 4px; text-transform: uppercase; text-align: center;
+  transition: all 0.15s; user-select: none;
+}
+.tab.active { background: rgba(245,158,11,.1); border-color: var(--amber); color: var(--amber); }
+.tab:active { transform: scale(0.95); }
+
+/* ── LW PREVIEW ───────────────────────────────────────────── */
+.lw-prev {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 16px; font-weight: 700;
+  color: var(--amber); padding: 2px 0 6px; min-height: 22px;
+}
+
+/* ── MULTI AREAS ──────────────────────────────────────────── */
+.arow { display: flex; gap: 5px; align-items: center; margin-bottom: 8px; }
+.arow input { margin: 0; font-size: 15px; padding: 9px 7px; }
+.an { flex: 1.2; min-width: 0; }
+.ad { flex: 1; min-width: 0; max-width: calc(100% - 4px); }
+.abadge {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 14px; font-weight: 700;
+  color: var(--amber); min-width: 50px; text-align: right; flex-shrink: 0;
+}
+.delbtn {
+  background: rgba(239,68,68,0.1);
+  border: 1.5px solid rgba(239,68,68,0.25);
+  border-radius: 7px;
+  color: var(--red);
+  cursor: pointer;
+  width: 34px; height: 34px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  font-size: 18px; line-height: 1;
+  transition: background 0.15s, border-color 0.15s;
+}
+.delbtn:active { background: rgba(239,68,68,0.25); border-color: var(--red); }
+.add-btn {
+  display: flex; align-items: center; justify-content: center; gap: 5px;
+  background: none; border: 1.5px dashed var(--border); border-radius: 8px;
+  color: var(--concrete); cursor: pointer;
+  font-family: 'Barlow Condensed', sans-serif; font-size: 13px; font-weight: 800; letter-spacing: 1px;
+  padding: 9px; text-transform: uppercase; width: 100%; margin-top: 3px;
+  transition: border-color 0.15s, color 0.15s;
+}
+.add-btn:active { border-color: var(--amber); color: var(--amber); }
+.mtotal {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 14px; font-weight: 700; color: var(--amber);
+  text-align: right; padding: 5px 0 1px; min-height: 20px;
+}
+
+/* ── RESULT ───────────────────────────────────────────────── */
+.result-card {
+  background: var(--card);
+  border: 1.5px solid var(--amber);
+  border-radius: var(--radius);
+  overflow: hidden;
+  margin-bottom: 11px;
+  transition: background 0.25s;
+}
+.total-bar {
+  background: var(--amber);
+  padding: 13px 15px;
+  display: flex; align-items: baseline; justify-content: space-between; gap: 8px;
+}
+.total-lbl { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: rgba(20,24,32,.55); }
+.total-val { font-family: 'Barlow Condensed', sans-serif; font-size: 34px; font-weight: 900; color: var(--total-text); line-height: 1; }
+.rrows { padding: 2px 0; }
+.rrow { display: flex; justify-content: space-between; align-items: baseline; padding: 8px 15px; border-bottom: 1px solid var(--border); }
+.rrow:last-child { border-bottom: none; }
+.rk { font-size: 13px; color: var(--concrete); }
+.rv { font-family: 'Barlow Condensed', sans-serif; font-size: 16px; font-weight: 700; color: var(--chalk); }
+
+/* ── EMPTY ────────────────────────────────────────────────── */
+.empty { text-align: center; padding: 26px 16px; color: var(--concrete); font-size: 14px; line-height: 1.7; }
+.empty-icon { font-size: 34px; margin-bottom: 8px; }
+
+/* ── RESET ────────────────────────────────────────────────── */
+.reset-btn {
+  width: 100%; background: none; border: 1.5px solid var(--border); border-radius: 8px;
+  color: var(--concrete); cursor: pointer;
+  font-family: 'Barlow Condensed', sans-serif; font-size: 12px; font-weight: 800; letter-spacing: 2px;
+  padding: 11px; text-transform: uppercase; transition: border-color 0.15s, color 0.15s;
+  margin-top: 2px; display: flex; align-items: center; justify-content: center; gap: 7px;
+}
+.reset-btn svg { flex-shrink: 0; }
+.reset-btn:active { border-color: var(--red); color: var(--red); }
+
+/* ── OVERLAY (splash + dropdowns backdrop) ─────────────────── */
+.overlay {
+  display: none;
+  position: fixed; inset: 0;
+  background: var(--overlay);
+  z-index: 300;
+  align-items: center; justify-content: center;
+  padding: 20px;
+  backdrop-filter: blur(3px);
+}
+.overlay.open { display: flex; animation: fadeIn 0.2s ease; }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+/* ── SPLASH ───────────────────────────────────────────────── */
+.splash {
+  background: var(--splash-bg);
+  border: 1.5px solid var(--border);
+  border-radius: 16px;
+  padding: 28px 22px 22px;
+  max-width: 400px;
+  width: 100%;
+  text-align: center;
+  box-shadow: 0 24px 64px rgba(0,0,0,0.4);
+  animation: slideUp 0.3s cubic-bezier(0.34,1.56,0.64,1);
+}
+@keyframes slideUp { from { opacity:0; transform:translateY(30px) scale(0.96); } to { opacity:1; transform:translateY(0) scale(1); } }
+.splash-icon { font-size: 48px; margin-bottom: 12px; }
+.splash-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 28px; font-weight: 900; letter-spacing: 2px; text-transform: uppercase;
+  color: var(--amber); margin-bottom: 6px;
+}
+.splash-sub {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 13px; letter-spacing: 2px; text-transform: uppercase;
+  color: var(--concrete); margin-bottom: 18px;
+}
+.splash-desc {
+  font-size: 14px; color: var(--concrete); line-height: 1.7; margin-bottom: 22px;
+}
+.splash-desc strong { color: var(--chalk); font-weight: 600; }
+.splash-features {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 22px; text-align: left;
+}
+.sf {
+  background: var(--bg2, var(--bg));
+  border: 1px solid var(--border);
+  border-radius: 8px; padding: 10px 11px;
+}
+.sf-icon { font-size: 18px; margin-bottom: 4px; }
+.sf-text { font-size: 12px; color: var(--chalk); font-weight: 600; line-height: 1.3; }
+.splash-divider { border: none; border-top: 1px solid var(--border); margin: 0 0 18px; }
+/* custom splash checkbox */
+.splash-check {
+  display: flex; align-items: center; gap: 10px;
+  justify-content: center; margin-bottom: 16px; cursor: pointer; user-select: none;
+}
+.splash-check span { font-size: 13px; color: var(--concrete); }
+.cbox {
+  width: 22px; height: 22px; flex-shrink: 0;
+  border: 2px solid var(--border); border-radius: 5px;
+  background: var(--input-bg);
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.15s, border-color 0.15s;
+  cursor: pointer;
+}
+.cbox.checked {
+  background: var(--amber); border-color: var(--amber);
+}
+.cbox svg { display: none; }
+.cbox.checked svg { display: block; }
+
+/* splash lang picker */
+.splash-lang {
+  display: flex; gap: 6px; justify-content: center; margin-bottom: 18px;
+}
+.sl-btn {
+  background: var(--input-bg); border: 1.5px solid var(--border); border-radius: 8px;
+  color: var(--concrete); cursor: pointer;
+  font-family: 'Barlow Condensed', sans-serif; font-size: 13px; font-weight: 800;
+  letter-spacing: 1px; padding: 8px 14px; text-transform: uppercase;
+  transition: all 0.15s; display: flex; align-items: center; gap: 6px;
+  user-select: none;
+}
+.sl-btn.active { background: rgba(245,158,11,.12); border-color: var(--amber); color: var(--amber); }
+.sl-btn:active { transform: scale(0.95); }
+
+/* rate field highlight shake */
+@keyframes rateShake {
+  0%,100% { transform: translateX(0); border-color: var(--amber); }
+  20% { transform: translateX(-5px); }
+  40% { transform: translateX(5px); }
+  60% { transform: translateX(-4px); }
+  80% { transform: translateX(4px); }
+}
+.rate-highlight { animation: rateShake 0.4s ease; border-color: var(--amber) !important; box-shadow: 0 0 0 3px rgba(245,158,11,0.2); }
+.splash-btn {
+  background: var(--amber); border: none; border-radius: 9px; color: #141820;
+  cursor: pointer; font-family: 'Barlow Condensed', sans-serif; font-size: 17px; font-weight: 900;
+  letter-spacing: 2px; padding: 13px 28px; text-transform: uppercase; width: 100%;
+  transition: background 0.15s; touch-action: manipulation;
+}
+.splash-btn:hover { background: var(--amber-hot); }
+.splash-btn:active { transform: scale(0.97); }
+
+/* ── SCROLLBAR ────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+</style>
+</head>
+<body data-theme="dark">
+
+<!-- SPLASH OVERLAY -->
+<div class="overlay" id="splash-overlay">
+  <div class="splash" id="splash-box">
+    <div class="splash-icon">📐</div>
+    <div class="splash-title" data-i="splash_title">m² Calc</div>
+    <div class="splash-sub" data-i="splash_sub">Contractor Work Calculator</div>
+    <div class="splash-desc" data-i="splash_desc">
+      Quickly calculate the <strong>total cost</strong> of any construction work by area —
+      with VAT, waste factor and multiple room support.
+    </div>
+    <div class="splash-features">
+      <div class="sf"><div class="sf-icon">💶</div><div class="sf-text" data-i="sf1">Set your own €/m² rate</div></div>
+      <div class="sf"><div class="sf-icon">📏</div><div class="sf-text" data-i="sf2">Direct m², L×W, or multiple areas</div></div>
+      <div class="sf"><div class="sf-icon">🧾</div><div class="sf-text" data-i="sf3">Waste % and VAT included</div></div>
+      <div class="sf"><div class="sf-icon">🌙</div><div class="sf-text" data-i="sf4">Dark, light & system theme</div></div>
+    </div>
+    <hr class="splash-divider">
+    <div class="splash-lang">
+      <button class="sl-btn active" id="sl-en" onclick="splashSetLang('en')">🇺🇸 EN</button>
+      <button class="sl-btn" id="sl-sk" onclick="splashSetLang('sk')">🇸🇰 SK</button>
+      <button class="sl-btn" id="sl-de" onclick="splashSetLang('de')">🇩🇪 DE</button>
+    </div>
+    <hr class="splash-divider">
+    <label class="splash-check" onclick="toggleSplashCheck()">
+      <div class="cbox" id="splash-cbox">
+        <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+          <polyline points="1.5,6.5 5,10 11.5,3" stroke="#141820" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <span data-i="splash_dontshow">Don't show this again</span>
+    </label>
+    <button class="splash-btn" onclick="closeSplash()" data-i="splash_btn">Get Started →</button>
+  </div>
+</div>
+
+<!-- HEADER -->
+<header>
+  <div class="logo">m² <em>Calc</em></div>
+  <div class="header-controls">
+
+    <!-- THEME BUTTON -->
+    <div style="position:relative;">
+      <button class="hbtn" id="theme-btn" onclick="toggleThemeMenu(event)">
+        <svg id="theme-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/>
+          <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+          <line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/>
+          <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+        </svg>
+        <span id="theme-label">Dark</span>
+      </button>
+      <div class="dropdown" id="theme-menu">
+        <div class="dd-item" onclick="setTheme('dark')">
+          <span class="dd-icon">🌙</span><span data-i="theme_dark">Dark</span><span class="dd-check" id="thck-dark">✓</span>
+        </div>
+        <div class="dd-item" onclick="setTheme('light')">
+          <span class="dd-icon">☀️</span><span data-i="theme_light">Light</span><span class="dd-check" id="thck-light">✓</span>
+        </div>
+        <div class="dd-item" onclick="setTheme('system')">
+          <span class="dd-icon">⚙️</span><span data-i="theme_system">System</span><span class="dd-check" id="thck-system">✓</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- LANGUAGE BUTTON -->
+    <div style="position:relative;">
+      <button class="hbtn" id="lang-btn" onclick="toggleLangMenu(event)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/>
+          <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+        </svg>
+        <span id="lang-label">EN</span>
+      </button>
+      <div class="dropdown" id="lang-menu">
+        <div class="dd-item" onclick="setLang('en')">
+          <span class="dd-icon">🇺🇸</span><span>English (US)</span><span class="dd-check" id="lngck-en">✓</span>
+        </div>
+        <div class="dd-item" onclick="setLang('sk')">
+          <span class="dd-icon">🇸🇰</span><span>Slovenčina</span><span class="dd-check" id="lngck-sk">✓</span>
+        </div>
+        <div class="dd-item" onclick="setLang('de')">
+          <span class="dd-icon">🇩🇪</span><span>Deutsch</span><span class="dd-check" id="lngck-de">✓</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</header>
+
+<!-- MAIN PAGE -->
+<div class="page">
+
+  <div class="sec" data-i="sec_rate"></div>
+  <div class="card mb">
+    <label data-i="lbl_rate"></label>
+    <div class="rate-wrap">
+      <span class="pre">€</span>
+      <input type="number" id="rate" inputmode="decimal" data-i-ph="ph_rate" oninput="calc()">
+      <span class="suf">/m²</span>
+    </div>
+  </div>
+
+  <div class="card mb">
+    <div class="r2">
+      <div>
+        <label data-i="lbl_waste"></label>
+        <input type="number" id="waste" inputmode="decimal" data-i-ph="ph_waste" oninput="calc()">
+      </div>
+      <div>
+        <label data-i="lbl_vat"></label>
+        <input type="number" id="vat" inputmode="decimal" data-i-ph="ph_vat" oninput="calc()">
+      </div>
+    </div>
+  </div>
+
+  <div class="sec" data-i="sec_area"></div>
+  <div class="card mb">
+    <div class="tabs">
+      <div class="tab active" id="tab-direct" onclick="setMethod('direct')" data-i="tab_direct"></div>
+      <div class="tab" id="tab-lw" onclick="setMethod('lw')" data-i="tab_lw"></div>
+      <div class="tab" id="tab-multi" onclick="setMethod('multi')" data-i="tab_multi"></div>
+    </div>
+
+    <div id="inp-direct">
+      <label data-i="lbl_area_direct"></label>
+      <input type="number" id="area-direct" inputmode="decimal" data-i-ph="ph_area" oninput="calc()" onfocus="checkRateFocus()">
+    </div>
+
+    <div id="inp-lw" style="display:none;">
+      <div class="r2 mb">
+        <div>
+          <label data-i="lbl_length"></label>
+          <input type="number" id="lw-l" inputmode="decimal" placeholder="5.0" oninput="lwChange()" onfocus="checkRateFocus()">
+        </div>
+        <div>
+          <label data-i="lbl_width"></label>
+          <input type="number" id="lw-w" inputmode="decimal" placeholder="4.8" oninput="lwChange()" onfocus="checkRateFocus()">
+        </div>
+      </div>
+      <div class="lw-prev" id="lw-prev"></div>
+    </div>
+
+    <div id="inp-multi" style="display:none;">
+      <div id="multi-list"></div>
+      <button class="add-btn" id="add-area-btn" onclick="addArea()">+ <span data-i="btn_add_area"></span></button>
+      <div class="mtotal" id="mtotal"></div>
+    </div>
+  </div>
+
+  <div class="sec" data-i="sec_result"></div>
+  <div id="result-wrap"></div>
+
+  <button class="reset-btn" id="reset-btn" onclick="resetAll()">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.5"/>
+    </svg>
+    <span data-i="btn_reset"></span>
+  </button>
+</div>
+
+<script>
+// ════════════════════════════════════════════════
+//  TRANSLATIONS
+// ════════════════════════════════════════════════
+const LANGS = {
+  en: {
+    sec_rate:       'Your Rate',
+    lbl_rate:       'Price per m²',
+    ph_rate:        '0.00',
+    lbl_waste:      'Waste / Extra %',
+    ph_waste:       '10',
+    lbl_vat:        'VAT %',
+    ph_vat:         '21',
+    sec_area:       'Area',
+    tab_direct:     'm² Direct',
+    tab_lw:         'L × W',
+    tab_multi:      'Multiple',
+    lbl_area_direct:'Total Area (m²)',
+    ph_area:        'e.g. 24.5',
+    lbl_length:     'Length (m)',
+    lbl_width:      'Width (m)',
+    sec_result:     'Cost Breakdown',
+    btn_add_area:   'Add Area',
+    btn_reset:      'Clear All',
+    theme_dark:     'Dark',
+    theme_light:    'Light',
+    theme_system:   'System',
+    splash_title:   'm² Calc',
+    splash_sub:     'Contractor Work Calculator',
+    splash_desc:    'Quickly calculate the <strong>total cost</strong> of any construction work by area — with VAT, waste factor and multiple room support.',
+    sf1:            'Set your own €/m² rate',
+    sf2:            'Direct m², L×W, or multiple areas',
+    sf3:            'Waste % and VAT included',
+    sf4:            'Dark, light & system theme',
+    splash_dontshow:'Don\'t show this again',
+    splash_btn:     'Get Started →',
+    res_net:        'Net area',
+    res_waste:      'Area incl. waste',
+    res_rate:       'Rate',
+    res_net_cost:   'Cost ex. VAT',
+    res_vat:        'VAT',
+    res_total:      'Total',
+    res_total_vat:  'Total incl. VAT',
+    empty_text:     'Enter your rate and area\nto see the cost breakdown.',
+    ph_name:        'Name',
+    ph_l:           'L (m)',
+    ph_w:           'W (m)',
+    total_prefix:   'Total: ',
+    theme_label_dark: 'Dark',
+    theme_label_light: 'Light',
+    theme_label_system: 'System',
+  },
+  sk: {
+    sec_rate:       'Vaša sadzba',
+    lbl_rate:       'Cena za m²',
+    ph_rate:        '0,00',
+    lbl_waste:      'Odpad / Prídavok %',
+    ph_waste:       '10',
+    lbl_vat:        'DPH %',
+    ph_vat:         '20',
+    sec_area:       'Plocha',
+    tab_direct:     'm² priamo',
+    tab_lw:         'D × Š',
+    tab_multi:      'Viacero',
+    lbl_area_direct:'Celková plocha (m²)',
+    ph_area:        'napr. 24,5',
+    lbl_length:     'Dĺžka (m)',
+    lbl_width:      'Šírka (m)',
+    sec_result:     'Cenová kalkulácia',
+    btn_add_area:   'Pridať plochu',
+    btn_reset:      'Vymazať všetko',
+    theme_dark:     'Tmavý',
+    theme_light:    'Svetlý',
+    theme_system:   'Systémový',
+    splash_title:   'm² Kalkulátor',
+    splash_sub:     'Kalkulátor pre stavbárov',
+    splash_desc:    'Rýchlo vypočítajte <strong>celkové náklady</strong> na akúkoľvek stavebnú prácu podľa plochy — vrátane DPH, odpadu a viacerých miestností.',
+    sf1:            'Zadajte vlastnú sadzbu €/m²',
+    sf2:            'Priamo m², D×Š alebo viacero plôch',
+    sf3:            'Zahrnutý odpad % a DPH',
+    sf4:            'Tmavý, svetlý a systémový motív',
+    splash_dontshow:'Viac nezobrazovať',
+    splash_btn:     'Začať →',
+    res_net:        'Čistá plocha',
+    res_waste:      'Plocha vr. odpadu',
+    res_rate:       'Sadzba',
+    res_net_cost:   'Náklady bez DPH',
+    res_vat:        'DPH',
+    res_total:      'Celkom',
+    res_total_vat:  'Celkom vr. DPH',
+    empty_text:     'Zadajte sadzbu a plochu\npre výpočet nákladov.',
+    ph_name:        'Názov',
+    ph_l:           'D (m)',
+    ph_w:           'Š (m)',
+    total_prefix:   'Spolu: ',
+    theme_label_dark: 'Tmavý',
+    theme_label_light: 'Svetlý',
+    theme_label_system: 'Systémový',
+  },
+  de: {
+    sec_rate:       'Ihr Preis',
+    lbl_rate:       'Preis pro m²',
+    ph_rate:        '0,00',
+    lbl_waste:      'Verschnitt / Zugabe %',
+    ph_waste:       '10',
+    lbl_vat:        'MwSt. %',
+    ph_vat:         '19',
+    sec_area:       'Fläche',
+    tab_direct:     'm² direkt',
+    tab_lw:         'L × B',
+    tab_multi:      'Mehrere',
+    lbl_area_direct:'Gesamtfläche (m²)',
+    ph_area:        'z. B. 24,5',
+    lbl_length:     'Länge (m)',
+    lbl_width:      'Breite (m)',
+    sec_result:     'Kostenübersicht',
+    btn_add_area:   'Fläche hinzufügen',
+    btn_reset:      'Alles löschen',
+    theme_dark:     'Dunkel',
+    theme_light:    'Hell',
+    theme_system:   'System',
+    splash_title:   'm² Rechner',
+    splash_sub:     'Handwerker-Kalkulator',
+    splash_desc:    'Berechnen Sie schnell die <strong>Gesamtkosten</strong> für Bauarbeiten nach Fläche — mit MwSt., Verschnitt und Mehrraum-Unterstützung.',
+    sf1:            'Eigenen €/m²-Preis festlegen',
+    sf2:            'Direkt m², L×B oder mehrere Flächen',
+    sf3:            'Verschnitt % und MwSt. einbezogen',
+    sf4:            'Dunkel-, Hell- & Systemdesign',
+    splash_dontshow:'Nicht mehr anzeigen',
+    splash_btn:     'Loslegen →',
+    res_net:        'Nettofläche',
+    res_waste:      'Fläche inkl. Verschnitt',
+    res_rate:       'Preis',
+    res_net_cost:   'Kosten ohne MwSt.',
+    res_vat:        'MwSt.',
+    res_total:      'Gesamt',
+    res_total_vat:  'Gesamt inkl. MwSt.',
+    empty_text:     'Preis und Fläche eingeben\num die Kalkulation zu sehen.',
+    ph_name:        'Name',
+    ph_l:           'L (m)',
+    ph_w:           'B (m)',
+    total_prefix:   'Gesamt: ',
+    theme_label_dark: 'Dunkel',
+    theme_label_light: 'Hell',
+    theme_label_system: 'System',
+  }
+};
+
+// ════════════════════════════════════════════════
+//  COOKIES
+// ════════════════════════════════════════════════
+function setCookie(k, v, days=365) {
+  const d = new Date();
+  d.setTime(d.getTime() + days*24*60*60*1000);
+  document.cookie = k+'='+encodeURIComponent(v)+';expires='+d.toUTCString()+';path=/;SameSite=Lax';
+}
+function getCookie(k) {
+  const name = k+'=';
+  for (const c of document.cookie.split(';')) {
+    const t = c.trim();
+    if (t.startsWith(name)) return decodeURIComponent(t.substring(name.length));
+  }
+  return null;
+}
+
+// ════════════════════════════════════════════════
+//  STATE
+// ════════════════════════════════════════════════
+let lang = getCookie('m2_lang') || 'en';
+let themeChoice = getCookie('m2_theme') || 'system';
+let method = 'direct';
+let areas = [{id:1,name:'',l:0,w:0},{id:2,name:'',l:0,w:0}];
+let nid = 3;
+
+// ════════════════════════════════════════════════
+//  THEME
+// ════════════════════════════════════════════════
+const themeIcons = {
+  dark:   `<path d="M21 12.79A9 9 0 1 1 11.21 3a7 7 0 0 0 9.79 9.79z"/>`,
+  light:  `<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>`,
+  system: `<rect x="2" y="3" width="20" height="14" rx="2"/><polyline points="8 21 12 17 16 21"/>`,
+};
+
+function applyTheme(choice) {
+  themeChoice = choice;
+  let actual = choice;
+  if (choice === 'system') {
+    actual = window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+  }
+  document.body.setAttribute('data-theme', actual);
+  const icon = document.getElementById('theme-icon');
+  icon.innerHTML = themeIcons[choice] || themeIcons.dark;
+  const T = LANGS[lang];
+  const labels = {dark: T.theme_label_dark, light: T.theme_label_light, system: T.theme_label_system};
+  document.getElementById('theme-label').textContent = labels[choice] || choice;
+  ['dark','light','system'].forEach(k => {
+    document.getElementById('thck-'+k).style.color = k===choice ? 'var(--amber)' : 'transparent';
+  });
+}
+
+function setTheme(choice) {
+  setCookie('m2_theme', choice);
+  applyTheme(choice);
+  closeAllMenus();
+}
+
+function toggleThemeMenu(e) {
+  e.stopPropagation();
+  const m = document.getElementById('theme-menu');
+  const isOpen = m.classList.contains('open');
+  closeAllMenus();
+  if (!isOpen) m.classList.add('open');
+}
+
+// ════════════════════════════════════════════════
+//  LANGUAGE
+// ════════════════════════════════════════════════
+function t(key) { return (LANGS[lang] || LANGS.en)[key] || key; }
+
+function applyLang(l) {
+  lang = l;
+  const T = LANGS[l];
+  const labels = {en:'EN', sk:'SK', de:'DE'};
+  document.getElementById('lang-label').textContent = labels[l];
+  ['en','sk','de'].forEach(k => {
+    document.getElementById('lngck-'+k).style.color = k===l ? 'var(--amber)' : 'transparent';
+    const slBtn = document.getElementById('sl-'+k);
+    if (slBtn) slBtn.classList.toggle('active', k===l);
+  });
+  // Update all data-i elements
+  document.querySelectorAll('[data-i]').forEach(el => {
+    const key = el.getAttribute('data-i');
+    const val = T[key];
+    if (!val) return;
+    if (key.startsWith('splash_desc')) el.innerHTML = val;
+    else el.textContent = val;
+  });
+  // Update placeholders
+  document.querySelectorAll('[data-i-ph]').forEach(el => {
+    const key = el.getAttribute('data-i-ph');
+    el.placeholder = T[key] || '';
+  });
+  // Update theme dropdown labels
+  document.querySelectorAll('#theme-menu .dd-item').forEach((el, i) => {
+    const keys = ['theme_dark','theme_light','theme_system'];
+    const span = el.querySelector('span:nth-child(2)');
+    if (span) span.textContent = T[keys[i]];
+  });
+  // Re-apply theme label
+  applyTheme(themeChoice);
+  // Re-render dynamic content
+  renderAreas();
+  calc();
+}
+
+function setLang(l) {
+  setCookie('m2_lang', l);
+  applyLang(l);
+  closeAllMenus();
+}
+
+function toggleLangMenu(e) {
+  e.stopPropagation();
+  const m = document.getElementById('lang-menu');
+  const isOpen = m.classList.contains('open');
+  closeAllMenus();
+  if (!isOpen) m.classList.add('open');
+}
+
+function closeAllMenus() {
+  document.querySelectorAll('.dropdown').forEach(d => d.classList.remove('open'));
+}
+document.addEventListener('click', closeAllMenus);
+
+// ════════════════════════════════════════════════
+//  SPLASH
+// ════════════════════════════════════════════════
+let splashChecked = false;
+
+function toggleSplashCheck() {
+  splashChecked = !splashChecked;
+  const box = document.getElementById('splash-cbox');
+  box.classList.toggle('checked', splashChecked);
+}
+
+function splashSetLang(l) {
+  ['en','sk','de'].forEach(k => {
+    document.getElementById('sl-'+k).classList.toggle('active', k===l);
+  });
+  setLang(l);
+}
+
+function closeSplash() {
+  if (splashChecked) {
+    setCookie('m2_splash_seen', '1', 365);
+  }
+  document.getElementById('splash-overlay').classList.remove('open');
+}
+
+function initSplash() {
+  const seen = getCookie('m2_splash_seen');
+  if (!seen) document.getElementById('splash-overlay').classList.add('open');
+}
+
+// ════════════════════════════════════════════════
+//  METHOD SWITCHING
+// ════════════════════════════════════════════════
+function setMethod(m) {
+  method = m;
+  ['direct','lw','multi'].forEach(k => {
+    document.getElementById('inp-'+k).style.display = k===m ? 'block' : 'none';
+    document.getElementById('tab-'+k).classList.toggle('active', k===m);
+  });
+  syncFromMethod();
+  calc();
+}
+function syncFromMethod() {
+  if (method === 'multi') {
+    const tot = areas.reduce((s,a) => s+a.l*a.w, 0);
+    document.getElementById('area-direct').value = tot || '';
+  } else if (method === 'lw') {
+    lwChange();
+  }
+}
+
+// ════════════════════════════════════════════════
+//  L×W
+// ════════════════════════════════════════════════
+function lwChange() {
+  const l = +document.getElementById('lw-l').value;
+  const w = +document.getElementById('lw-w').value;
+  const a = l * w;
+  document.getElementById('lw-prev').textContent = (l && w) ? `= ${fmt(a,3)} m²` : '';
+  document.getElementById('area-direct').value = (l && w) ? a : '';
+  calc();
+}
+
+// ════════════════════════════════════════════════
+//  MULTI AREAS
+// ════════════════════════════════════════════════
+function addArea() {
+  areas.push({id:nid++, name:'', l:0, w:0});
+  renderAreas();
+}
+function delArea(id) {
+  if (areas.length <= 1) return;
+  areas = areas.filter(a => a.id !== id);
+  renderAreas();
+}
+function upArea(id, k, v) {
+  const a = areas.find(x => x.id === id);
+  if (!a) return;
+  a[k] = k === 'name' ? v : +v;
+  // Update only the badge for this row — don't re-render DOM (keeps keyboard open)
+  const badge = document.getElementById('badge-' + id);
+  if (badge) badge.textContent = (a.l && a.w) ? fmt(a.l * a.w, 2) : '—';
+  updateMultiTotal();
+  calc();
+}
+function updateMultiTotal() {
+  const T = LANGS[lang];
+  const tot = areas.reduce((s, a) => s + a.l * a.w, 0);
+  document.getElementById('mtotal').textContent = tot > 0 ? (T.total_prefix || 'Total: ') + fmt(tot, 3) + ' m²' : '';
+  document.getElementById('area-direct').value = tot || '';
+}
+function renderAreas() {
+  const T = LANGS[lang];
+  document.getElementById('multi-list').innerHTML = areas.map(a => `
+    <div class="arow">
+      <input class="an" type="text" placeholder="${T.ph_name||'Name'}" value="${a.name}"
+        oninput="upArea(${a.id},'name',this.value)"
+        onfocus="checkRateFocus()"
+        style="flex:1.2;min-width:0;">
+      <input class="ad" type="number" inputmode="decimal" placeholder="${T.ph_l||'L'}" value="${a.l||''}"
+        oninput="upArea(${a.id},'l',this.value)"
+        onfocus="checkRateFocus()"
+        style="flex:1;min-width:0;">
+      <input class="ad" type="number" inputmode="decimal" placeholder="${T.ph_w||'W'}" value="${a.w||''}"
+        oninput="upArea(${a.id},'w',this.value)"
+        onfocus="checkRateFocus()"
+        style="flex:1;min-width:0;">
+      <div class="abadge" id="badge-${a.id}">${a.l&&a.w ? fmt(a.l*a.w,2) : '—'}</div>
+      <button class="delbtn" onclick="delArea(${a.id})" type="button">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>`).join('');
+  updateMultiTotal();
+  calc();
+}
+
+// ════════════════════════════════════════════════
+//  CALC
+// ════════════════════════════════════════════════
+function fmt(n, d=2) {
+  if (isNaN(n) || !isFinite(n)) return '—';
+  if (n === 0 && d > 0) return '0.' + '0'.repeat(d);
+  return n.toFixed(d).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+}
+function eur(n) { return '€\u202f' + fmt(n, 2); }
+
+function calc() {
+  const rate  = +document.getElementById('rate').value;
+  const waste = +document.getElementById('waste').value || 0;
+  const vat   = +document.getElementById('vat').value   || 0;
+  const area  = +document.getElementById('area-direct').value;
+  const wrap  = document.getElementById('result-wrap');
+  const T     = LANGS[lang];
+
+  if (!rate || !area) {
+    wrap.innerHTML = `<div class="result-card"><div class="empty"><div class="empty-icon">📐</div>${(T.empty_text||'').replace('\n','<br>')}</div></div>`;
+    return;
+  }
+
+  const areaW  = area * (1 + waste/100);
+  const net    = areaW * rate;
+  const vatAmt = net * vat/100;
+  const total  = net + vatAmt;
+  const totalLabel = vat ? T.res_total_vat : T.res_total;
+
+  const wasteRow = waste
+    ? `<div class="rrow"><div class="rk">${T.res_waste} (${waste}%)</div><div class="rv">${fmt(areaW,3)} m²</div></div>` : '';
+  const vatRow = vat
+    ? `<div class="rrow"><div class="rk">${T.res_vat} (${vat}%)</div><div class="rv">${eur(vatAmt)}</div></div>` : '';
+
+  wrap.innerHTML = `
+    <div class="result-card">
+      <div class="total-bar">
+        <div class="total-lbl">${totalLabel}</div>
+        <div class="total-val">${eur(total)}</div>
+      </div>
+      <div class="rrows">
+        <div class="rrow"><div class="rk">${T.res_net}</div><div class="rv">${fmt(area,3)} m²</div></div>
+        ${wasteRow}
+        <div class="rrow"><div class="rk">${T.res_rate}</div><div class="rv">${eur(rate)}/m²</div></div>
+        <div class="rrow"><div class="rk">${T.res_net_cost}</div><div class="rv">${eur(net)}</div></div>
+        ${vatRow}
+      </div>
+    </div>`;
+}
+
+// ════════════════════════════════════════════════
+//  RATE HIGHLIGHT
+// ════════════════════════════════════════════════
+function checkRateFocus() {
+  const rateEl = document.getElementById('rate');
+  if (!rateEl.value) {
+    rateEl.focus();
+    rateEl.classList.remove('rate-highlight');
+    void rateEl.offsetWidth; // reflow to restart animation
+    rateEl.classList.add('rate-highlight');
+    rateEl.addEventListener('animationend', () => rateEl.classList.remove('rate-highlight'), {once:true});
+  }
+}
+
+// ════════════════════════════════════════════════
+//  RESET
+// ════════════════════════════════════════════════
+function resetAll() {
+  ['rate','waste','vat','area-direct','lw-l','lw-w'].forEach(id => { document.getElementById(id).value=''; });
+  document.getElementById('lw-prev').textContent = '';
+  areas = [{id:1,name:'',l:0,w:0},{id:2,name:'',l:0,w:0}];
+  nid = 3;
+  renderAreas();
+  setMethod('direct');
+  calc();
+}
+
+// ════════════════════════════════════════════════
+//  SYSTEM THEME LISTENER
+// ════════════════════════════════════════════════
+window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', () => {
+  if (themeChoice === 'system') applyTheme('system');
+});
+
+// ════════════════════════════════════════════════
+//  INIT
+// ════════════════════════════════════════════════
+applyTheme(themeChoice);
+applyLang(lang);
+initSplash();
+</script>
+</body>
+</html>
