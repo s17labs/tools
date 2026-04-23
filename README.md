@@ -4,6 +4,7 @@ A collection of lightweight, high-performance utility tools developed by **s17 L
 
 ## Available Tools
 
+* **[Icon Maker](https://s17labs.github.io/tools/icon-maker)** - [[Source](./icon-maker)]: Generate and export custom icons — with full Android launcher package export.
 * **[Image Resizer](https://s17labs.github.io/tools/image-resizer)** - [[Source](./image-resizer)]: Batch resize images with aspect ratio locking and high-quality output.
 * **[SVG to PNG](https://s17labs.github.io/tools/svg-to-png)** - [[Source](./svg-to-png)]: Convert vector graphics to high-quality transparent PNGs locally in your browser.
 * **[Case Converter](https://s17labs.github.io/tools/case-converter)** - [[Source](./svg-to-png)]: Convert strings between various programming conventions and writing formats.
