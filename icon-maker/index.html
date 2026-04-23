@@ -3,102 +3,158 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Icon Maker — s17 Labs</title>
+  <title>Icon Maker | s17 Labs Tools</title>
+  <meta name="description" content="Generate and export custom icons using Font Awesome — with color, shape, scale controls, and full Android launcher package export.">
+  <meta property="og:title" content="Icon Maker | s17 Labs Tools">
+  <meta property="og:description" content="Generate and export custom icons using Font Awesome — with color, shape, scale controls, and full Android launcher package export.">
+  <meta property="og:site_name" content="s17 Labs Tools">
   <link href="https://fonts.googleapis.com/css2?family=Aldrich&display=swap" rel="stylesheet">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/js/all.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/js/all.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
   <style>
+    /* ── Tokens ── */
     :root {
-      --bg: #0e0e10;
-      --surface: #141416;
-      --surface-2: #1a1a1c;
-      --surface-3: #222226;
-      --border: rgba(255,255,255,0.07);
-      --accent: #ff4136;
-      --accent-dim: rgba(255,65,54,0.15);
-      --android: #3ddc84;
-      --android-dim: rgba(61,220,132,0.12);
-      --text: #f1f1f1;
-      --muted: #868686;
-      --radius: 6px;
-      --t: 0.2s ease;
+      --primary:        #0e0e10;
+      --accent:         #ff4136;
+      --primary-text:   #f1f1f1;
+      --secondary-text: #868686;
+      --btn-bg:         #1a1a1c;
+      --surface:        #141416;
+      --surface-2:      #1a1a1c;
+      --surface-3:      #222226;
+      --border:         rgba(255,255,255,0.07);
+      --accent-dim:     rgba(255,65,54,0.12);
+      --android:        #3ddc84;
+      --android-dim:    rgba(61,220,132,0.12);
+      --radius:         4px;
+      --t:              0.25s ease;
     }
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
-      background: var(--bg);
-      color: var(--text);
+      background: var(--primary);
+      color: var(--primary-text);
       font-family: Verdana, sans-serif;
-      font-size: 0.9rem;
+      font-size: 1rem;
       min-height: 100vh;
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 2rem 1rem 4rem;
       -webkit-font-smoothing: antialiased;
     }
 
     body::-webkit-scrollbar { display: none; }
 
-    /* ── Header ── */
-    .header {
+    a { color: inherit; text-decoration: none; transition: var(--t); }
+
+    /* ── Page wrapper ── */
+    .page {
       width: 100%;
       max-width: 900px;
+      padding: 0 20px;
       display: flex;
+      flex-direction: column;
+      flex: 1;
+    }
+
+    /* ── Header ── (matches tools pattern: back link + centred title) */
+    .tool-header {
+      width: 100%;
+      text-align: center;
+      margin: 2.5rem 0 0.4rem;
+      position: relative;
+      display: flex;
+      justify-content: center;
       align-items: center;
-      gap: 0.5rem;
-      margin-bottom: 2.5rem;
+      min-height: 2.8rem;
     }
 
-    .header h1 {
+    .back-link {
+      position: absolute;
+      left: 0;
+      background: none;
+      border: none;
+      color: var(--secondary-text);
+      cursor: pointer;
+      font-size: 1rem;
+      font-family: Verdana, sans-serif;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      padding: 0;
+      transition: var(--t);
+      text-decoration: none;
+    }
+
+    .back-link:hover { color: var(--accent); }
+
+    .tool-header h1 {
       font-family: Aldrich, sans-serif;
-      font-size: 1.4rem; line-height: 1;
-      display: flex; align-items: center; gap: 0.3em;
+      font-size: 1.8rem;
+      line-height: 1;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25em;
     }
 
-    .header-sub { margin-left: auto; color: var(--muted); font-size: 0.8rem; }
+    .cube {
+      display: inline-block;
+      width: 0.82em; height: 0.82em;
+      background: var(--accent);
+      transform: translateY(-0.12em);
+      flex-shrink: 0;
+    }
 
-    /* ── Layout ── */
+    .tool-desc {
+      text-align: center;
+      color: var(--secondary-text);
+      font-size: 0.95rem;
+      margin: 0.6rem 0 2.5rem;
+      line-height: 1.55;
+    }
+
+    /* ── Tool workspace ── */
     .workspace {
       width: 100%;
-      max-width: 900px;
       display: grid;
-      grid-template-columns: 1fr 330px;
-      gap: 1.5rem;
+      grid-template-columns: 1fr 320px;
+      gap: 1.25rem;
       align-items: start;
     }
 
+    /* ── Panel ── */
     .panel {
-      background: var(--surface);
+      background: rgba(255,255,255,0.02);
       border: 1px solid var(--border);
       border-radius: var(--radius);
-      padding: 1.5rem;
+      padding: 1.4rem;
     }
 
     .panel-title {
       font-family: Aldrich, sans-serif;
-      font-size: 0.72rem;
+      font-size: 0.7rem;
       text-transform: uppercase;
-      letter-spacing: 0.13em;
-      color: var(--muted);
-      margin-bottom: 1.2rem;
+      letter-spacing: 0.14em;
+      color: var(--secondary-text);
+      margin-bottom: 1.1rem;
     }
 
-    /* ── Preview ── */
-    .preview-panel { display: flex; flex-direction: column; align-items: center; gap: 1.5rem; }
+    /* ── Preview panel ── */
+    .preview-panel { display: flex; flex-direction: column; align-items: center; gap: 1.25rem; }
 
     .canvas-wrapper {
       width: 100%;
       display: flex; justify-content: center; align-items: center;
       padding: 2rem;
       background:
-        linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+        linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
       background-size: 20px 20px;
       border-radius: var(--radius);
-      border: 1px dashed var(--border);
-      min-height: 280px;
+      border: 1px dashed rgba(255,255,255,0.06);
+      min-height: 260px;
     }
 
     #preview-container { display: flex; align-items: center; justify-content: center; }
@@ -106,80 +162,98 @@
     .preview-meta { display: flex; gap: 0.5rem; flex-wrap: wrap; justify-content: center; }
 
     .preview-badge {
-      background: var(--surface-2); border: 1px solid var(--border);
-      border-radius: 3px; padding: 0.25rem 0.6rem;
-      font-size: 0.75rem; color: var(--muted);
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 0.2rem 0.55rem;
+      font-size: 0.72rem;
+      color: var(--secondary-text);
       font-family: 'Courier New', monospace;
     }
 
-    .preview-badge span { color: var(--text); }
+    .preview-badge span { color: var(--primary-text); }
+
+    /* ── Android preview ── */
+    .android-preview { display: none; flex-direction: column; gap: 0.6rem; }
+    .android-preview.visible { display: flex; }
+    .android-preview-title { font-size: 0.7rem; color: var(--secondary-text); text-transform: uppercase; letter-spacing: 0.1em; font-family: Aldrich, sans-serif; }
+    .android-sizes-row { display: flex; gap: 0.65rem; align-items: flex-end; flex-wrap: wrap; }
+    .android-size-item { display: flex; flex-direction: column; align-items: center; gap: 0.3rem; }
+    .android-size-item canvas { border-radius: 3px; border: 1px solid var(--border); }
+    .android-size-item span { font-size: 0.62rem; color: var(--secondary-text); font-family: 'Courier New', monospace; }
 
     /* ── Controls column ── */
     .controls-col { display: flex; flex-direction: column; gap: 1rem; }
 
-    .field { display: flex; flex-direction: column; gap: 0.5rem; }
+    .field { display: flex; flex-direction: column; gap: 0.45rem; }
 
     label {
-      font-size: 0.76rem; color: var(--muted);
-      text-transform: uppercase; letter-spacing: 0.08em;
+      font-size: 0.74rem; color: var(--secondary-text);
+      text-transform: uppercase; letter-spacing: 0.09em;
     }
 
     input[type="text"] {
-      background: var(--surface-2); border: 1px solid var(--border);
-      border-radius: var(--radius); color: var(--text);
-      font-family: 'Courier New', monospace; font-size: 0.9rem;
-      padding: 0.65rem 0.85rem; width: 100%; outline: none;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      color: var(--primary-text);
+      font-family: 'Courier New', monospace;
+      font-size: 0.88rem;
+      padding: 0.6rem 0.8rem;
+      width: 100%; outline: none;
       transition: border-color var(--t);
     }
 
     input[type="text"]:focus { border-color: rgba(255,65,54,0.5); }
-    input[type="text"]::placeholder { color: var(--muted); opacity: 0.5; }
+    input[type="text"]::placeholder { color: var(--secondary-text); opacity: 0.5; }
 
     /* Colors */
-    .color-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
-    .color-field { display: flex; flex-direction: column; gap: 0.5rem; }
+    .color-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.7rem; }
+    .color-field { display: flex; flex-direction: column; gap: 0.45rem; }
 
     .color-picker-wrap {
-      display: flex; align-items: center; gap: 0.6rem;
-      background: var(--surface-2); border: 1px solid var(--border);
-      border-radius: var(--radius); padding: 0.5rem 0.75rem;
+      display: flex; align-items: center; gap: 0.55rem;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 0.48rem 0.7rem;
       cursor: pointer; transition: border-color var(--t);
     }
 
     .color-picker-wrap:hover { border-color: rgba(255,65,54,0.4); }
 
     input[type="color"] {
-      width: 22px; height: 22px; border: none; border-radius: 3px;
+      width: 20px; height: 20px; border: none; border-radius: 3px;
       padding: 0; cursor: pointer; background: none; flex-shrink: 0;
     }
 
     input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
     input[type="color"]::-webkit-color-swatch { border: none; border-radius: 3px; }
 
-    .color-hex { font-family: 'Courier New', monospace; font-size: 0.82rem; color: var(--text); }
+    .color-hex { font-family: 'Courier New', monospace; font-size: 0.8rem; color: var(--primary-text); }
 
     /* Shape buttons */
-    .shape-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.5rem; }
+    .shape-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.45rem; }
 
     .shape-btn {
-      display: flex; flex-direction: column; align-items: center; gap: 0.4rem;
-      padding: 0.6rem 0.3rem;
+      display: flex; flex-direction: column; align-items: center; gap: 0.35rem;
+      padding: 0.55rem 0.25rem;
       background: var(--surface-2); border: 1px solid var(--border);
       border-radius: var(--radius); cursor: pointer;
-      transition: all var(--t); color: var(--muted);
-      font-size: 0.7rem; font-family: Verdana, sans-serif;
+      transition: all var(--t); color: var(--secondary-text);
+      font-size: 0.68rem; font-family: Verdana, sans-serif;
     }
 
-    .shape-btn:hover { border-color: rgba(255,65,54,0.4); color: var(--text); }
-    .shape-btn.active { border-color: var(--accent); background: var(--accent-dim); color: var(--text); }
+    .shape-btn:hover { border-color: rgba(255,65,54,0.4); color: var(--primary-text); }
+    .shape-btn.active { border-color: var(--accent); background: var(--accent-dim); color: var(--primary-text); }
 
-    .shape-icon { width: 22px; height: 22px; background: currentColor; opacity: 0.6; }
+    .shape-icon { width: 20px; height: 20px; background: currentColor; opacity: 0.6; }
     .shape-icon.circle { border-radius: 50%; }
-    .shape-icon.rounded { border-radius: 5px; }
+    .shape-icon.rounded { border-radius: 4px; }
     .shape-icon.square { border-radius: 0; }
-    .shape-icon.none { background: none; border: 1.5px dashed currentColor; border-radius: 3px; opacity: 1; }
+    .shape-icon.none { background: none; border: 1.5px dashed currentColor; border-radius: 2px; opacity: 1; }
 
-    .divider { border: none; border-top: 1px solid var(--border); margin: 1rem 0; }
+    .divider { border: none; border-top: 1px solid var(--border); margin: 0.9rem 0; }
 
     /* Range */
     input[type="range"] {
@@ -188,42 +262,42 @@
     }
 
     input[type="range"]::-webkit-slider-thumb {
-      -webkit-appearance: none; width: 14px; height: 14px;
+      -webkit-appearance: none; width: 13px; height: 13px;
       background: var(--accent); border-radius: 50%; cursor: pointer;
     }
 
     /* Preset grid */
-    .preset-grid {
-      display: grid; grid-template-columns: repeat(4, 1fr);
-      gap: 0.4rem; margin-bottom: 0.75rem;
-    }
+    .preset-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.35rem; margin-bottom: 0.7rem; }
 
     .preset-btn {
-      padding: 0.45rem 0.3rem;
+      padding: 0.4rem 0.25rem;
       background: var(--surface-2); border: 1px solid var(--border);
-      border-radius: var(--radius); color: var(--muted);
-      font-size: 0.73rem; font-family: 'Courier New', monospace;
+      border-radius: var(--radius); color: var(--secondary-text);
+      font-size: 0.7rem; font-family: 'Courier New', monospace;
       cursor: pointer; text-align: center; transition: all var(--t);
     }
 
-    .preset-btn:hover { border-color: rgba(255,65,54,0.4); color: var(--text); }
-    .preset-btn.active { border-color: var(--accent); background: var(--accent-dim); color: var(--text); }
+    .preset-btn:hover { border-color: rgba(255,65,54,0.4); color: var(--primary-text); }
+    .preset-btn.active { border-color: var(--accent); background: var(--accent-dim); color: var(--primary-text); }
 
     .custom-res { display: flex; gap: 0.5rem; align-items: center; }
-    .custom-res span { color: var(--muted); font-size: 0.85rem; flex-shrink: 0; }
+    .custom-res span { color: var(--secondary-text); font-size: 0.82rem; flex-shrink: 0; }
 
-    /* Export buttons */
-    .export-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; margin-top: 1rem; }
+    /* Standard export buttons */
+    .export-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.55rem; margin-top: 0.9rem; }
 
     .export-btn {
-      display: flex; align-items: center; justify-content: center; gap: 0.5rem;
-      padding: 0.75rem; border: 1px solid var(--border);
-      border-radius: var(--radius); background: var(--surface-2);
-      color: var(--muted); font-family: Verdana, sans-serif;
-      font-size: 0.82rem; cursor: pointer; transition: all var(--t);
+      display: inline-flex; align-items: center; justify-content: center; gap: 0.6rem;
+      font-size: 1rem;
+      background: var(--btn-bg); border: 1px solid transparent;
+      color: var(--secondary-text); cursor: pointer;
+      padding: 0.7rem 1.2rem;
+      border-radius: var(--radius);
+      font-family: Verdana, sans-serif;
+      transition: var(--t);
     }
 
-    .export-btn:hover { background: var(--accent); border-color: var(--accent); color: #fff; }
+    .export-btn:hover { background: var(--accent); color: var(--primary-text); }
 
     .fmt {
       font-family: Aldrich, sans-serif; font-size: 0.85rem;
@@ -232,293 +306,328 @@
 
     .export-btn:hover .fmt { color: #fff; }
 
-    /* ── Android Export Button ── */
+    /* ── Android section ── */
     .android-divider {
-      display: flex; align-items: center; gap: 0.75rem;
-      margin: 1rem 0 0.75rem;
+      display: flex; align-items: center; gap: 0.7rem; margin: 1rem 0 0.7rem;
     }
 
     .android-divider hr { flex: 1; border: none; border-top: 1px solid var(--border); }
 
     .android-divider span {
-      font-size: 0.7rem; color: var(--muted);
+      font-size: 0.68rem; color: var(--secondary-text);
       text-transform: uppercase; letter-spacing: 0.1em; white-space: nowrap;
     }
 
+    /* Material You checkbox */
+    .checkbox-row {
+      display: flex; align-items: flex-start; gap: 0.7rem;
+      margin-bottom: 0.7rem;
+      cursor: pointer;
+      padding: 0.7rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--surface-2);
+      transition: border-color var(--t), background var(--t);
+      user-select: none;
+    }
+
+    .checkbox-row:hover { border-color: rgba(61,220,132,0.3); background: rgba(61,220,132,0.04); }
+
+    .custom-checkbox { position: relative; flex-shrink: 0; margin-top: 2px; }
+    .custom-checkbox input[type="checkbox"] { position: absolute; opacity: 0; width: 0; height: 0; }
+
+    .checkbox-box {
+      width: 16px; height: 16px;
+      border: 1.5px solid var(--border);
+      border-radius: 3px; background: var(--surface-3);
+      display: flex; align-items: center; justify-content: center;
+      transition: all var(--t);
+      font-size: 0.58rem; color: transparent;
+    }
+
+    .custom-checkbox input:checked ~ .checkbox-box {
+      background: var(--android-dim); border-color: var(--android); color: var(--android);
+    }
+
+    .checkbox-text { display: flex; flex-direction: column; gap: 0.18rem; }
+    .checkbox-label { font-size: 0.8rem; color: var(--primary-text); font-family: Verdana, sans-serif; text-transform: none; letter-spacing: 0; }
+    .checkbox-sub { font-size: 0.68rem; color: var(--secondary-text); font-family: 'Courier New', monospace; line-height: 1.4; }
+
+    /* Android export button */
     .android-btn {
       width: 100%;
-      display: flex; align-items: center; justify-content: center; gap: 0.65rem;
-      padding: 0.85rem 1rem;
-      background: var(--android-dim);
-      border: 1px solid rgba(61,220,132,0.25);
-      border-radius: var(--radius);
-      color: var(--android);
-      font-family: Verdana, sans-serif; font-size: 0.85rem;
+      display: flex; align-items: center; justify-content: center; gap: 0.6rem;
+      padding: 0.8rem 1rem;
+      background: var(--android-dim); border: 1px solid rgba(61,220,132,0.22);
+      border-radius: var(--radius); color: var(--android);
+      font-family: Verdana, sans-serif; font-size: 0.88rem;
       cursor: pointer; transition: all var(--t);
       position: relative; overflow: hidden;
     }
 
     .android-btn::before {
-      content: '';
-      position: absolute; inset: 0;
+      content: ''; position: absolute; inset: 0;
       background: linear-gradient(90deg, transparent, rgba(61,220,132,0.07), transparent);
-      transform: translateX(-100%);
-      transition: transform 0.5s ease;
+      transform: translateX(-100%); transition: transform 0.5s ease;
     }
 
     .android-btn:hover::before { transform: translateX(100%); }
+    .android-btn:hover { background: rgba(61,220,132,0.18); border-color: rgba(61,220,132,0.48); }
+    .android-btn:disabled { opacity: 0.45; cursor: not-allowed; }
 
-    .android-btn:hover {
-      background: rgba(61,220,132,0.18);
-      border-color: rgba(61,220,132,0.5);
-      color: #5eeaa0;
-    }
+    .android-label { font-family: Aldrich, sans-serif; font-size: 0.85rem; color: var(--android); transition: color var(--t); }
+    .android-sub { font-size: 0.7rem; color: rgba(61,220,132,0.55); margin-left: 0.15rem; }
 
-    .android-btn:disabled {
-      opacity: 0.5; cursor: not-allowed;
-    }
-
-    .android-btn .android-label {
-      font-family: Aldrich, sans-serif; font-size: 0.88rem;
-      color: var(--android); transition: color var(--t);
-    }
-
-    .android-btn:hover .android-label { color: #5eeaa0; }
-
-    .android-btn .android-sub {
-      font-size: 0.72rem; color: rgba(61,220,132,0.6); margin-left: 0.2rem;
-    }
-
-    /* Progress bar */
-    .progress-wrap {
-      margin-top: 0.75rem;
-      display: none;
-    }
-
+    /* Progress */
+    .progress-wrap { margin-top: 0.7rem; display: none; }
     .progress-wrap.visible { display: block; }
-
-    .progress-bar-track {
-      width: 100%; height: 3px;
-      background: var(--surface-3); border-radius: 99px; overflow: hidden;
-    }
-
-    .progress-bar-fill {
-      height: 100%; width: 0%;
-      background: var(--android);
-      border-radius: 99px;
-      transition: width 0.15s ease;
-    }
-
-    .progress-label {
-      font-size: 0.72rem; color: var(--muted);
-      margin-top: 0.4rem; text-align: center;
-      font-family: 'Courier New', monospace;
-    }
-
-    /* Android preview grid */
-    .android-preview {
-      display: none;
-      flex-direction: column;
-      gap: 0.75rem;
-    }
-
-    .android-preview.visible { display: flex; }
-
-    .android-preview-title {
-      font-size: 0.72rem; color: var(--muted);
-      text-transform: uppercase; letter-spacing: 0.1em;
-    }
-
-    .android-sizes-row {
-      display: flex; gap: 0.75rem; align-items: flex-end; flex-wrap: wrap;
-    }
-
-    .android-size-item {
-      display: flex; flex-direction: column; align-items: center; gap: 0.3rem;
-    }
-
-    .android-size-item canvas {
-      border-radius: 3px;
-      border: 1px solid var(--border);
-    }
-
-    .android-size-item span {
-      font-size: 0.65rem; color: var(--muted);
-      font-family: 'Courier New', monospace;
-    }
+    .progress-bar-track { width: 100%; height: 3px; background: var(--surface-3); border-radius: 99px; overflow: hidden; }
+    .progress-bar-fill { height: 100%; width: 0%; background: var(--android); border-radius: 99px; transition: width 0.15s ease; }
+    .progress-label { font-size: 0.7rem; color: var(--secondary-text); margin-top: 0.4rem; text-align: center; font-family: 'Courier New', monospace; }
 
     /* Error */
-    .error-msg {
-      color: var(--accent); font-size: 0.78rem;
-      min-height: 1.1em; opacity: 0; transition: opacity var(--t);
-    }
-
+    .error-msg { color: var(--accent); font-size: 0.75rem; min-height: 1.1em; opacity: 0; transition: opacity var(--t); }
     .error-msg.visible { opacity: 1; }
 
     /* Placeholder */
-    .icon-placeholder {
-      display: flex; flex-direction: column; align-items: center; gap: 0.75rem;
-      color: var(--muted); opacity: 0.35;
+    .icon-placeholder { display: flex; flex-direction: column; align-items: center; gap: 0.65rem; color: var(--secondary-text); opacity: 0.3; }
+    .icon-placeholder svg { width: 42px; height: 42px; fill: currentColor; }
+    .icon-placeholder p { font-size: 0.78rem; }
+
+    /* ── More tools section ── (matches existing tools pages) */
+    .more-tools {
+      width: 100%;
+      margin: 3.5rem 0 0;
+      padding: 2rem 0 0;
+      border-top: 1px solid var(--border);
+      text-align: center;
     }
 
-    .icon-placeholder svg { width: 44px; height: 44px; fill: currentColor; }
-    .icon-placeholder p { font-size: 0.8rem; }
+    .more-tools h3 {
+      font-family: Aldrich, sans-serif;
+      font-size: 1.1rem;
+      margin-bottom: 0.55rem;
+    }
 
-    @media (max-width: 700px) {
+    .more-tools p {
+      color: var(--secondary-text);
+      font-size: 0.9rem;
+      margin-bottom: 1.4rem;
+      line-height: 1.5;
+    }
+
+    .more-tools-btn {
+      display: inline-flex; align-items: center; gap: 0.6rem;
+      font-size: 1rem; background: var(--btn-bg);
+      border: 1px solid transparent; color: var(--secondary-text);
+      cursor: pointer; padding: 0.75rem 1.4rem;
+      border-radius: var(--radius); font-family: Verdana, sans-serif;
+      transition: var(--t); text-decoration: none;
+    }
+
+    .more-tools-btn:hover { background: var(--accent); color: var(--primary-text); }
+
+    /* ── Footer ── */
+    .footer {
+      width: 100%;
+      padding: 2rem 0 1.5rem;
+      color: var(--secondary-text);
+      opacity: 0.65;
+      font-size: 0.9rem;
+      text-align: center;
+      margin-top: auto;
+    }
+
+    .footer a:hover, .footer a:active { color: var(--accent); text-decoration: underline; }
+
+    /* ── Responsive ── */
+    @media (max-width: 680px) {
       .workspace { grid-template-columns: 1fr; }
+      .tool-header h1 { font-size: 1.5rem; }
     }
   </style>
 </head>
 <body>
 
-<header class="header">
-  <h1>Icon Maker</h1>
-  <span class="header-sub">s17 Labs</span>
-</header>
+<div class="page">
 
-<div class="workspace">
-
-  <!-- Preview -->
-  <div class="panel preview-panel">
-    <div class="panel-title">Preview</div>
-    <div class="canvas-wrapper">
-      <div id="preview-container">
-        <div class="icon-placeholder" id="placeholder">
-          <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
-          <p>Enter an icon name to begin</p>
-        </div>
-      </div>
-    </div>
-    <div class="preview-meta" id="preview-meta" style="display:none;">
-      <div class="preview-badge">icon: <span id="meta-icon">—</span></div>
-      <div class="preview-badge">color: <span id="meta-color">—</span></div>
-      <div class="preview-badge">bg: <span id="meta-bg">—</span></div>
-    </div>
-
-    <!-- Android size preview (shown after export prep) -->
-    <div class="android-preview" id="android-preview">
-      <div class="android-preview-title">Android Adaptive Preview</div>
-      <div class="android-sizes-row" id="android-sizes-row"></div>
-    </div>
+  <!-- Header -->
+  <div class="tool-header">
+    <a href="https://s17labs.github.io/tools/" class="back-link">
+      <i class="fa-solid fa-arrow-left"></i> Tools
+    </a>
+    <h1><span class="cube"></span> Icon Maker</h1>
   </div>
+  <p class="tool-desc">Generate custom icons from Font Awesome. Control colors, shape, and scale — export as SVG, PNG, or a full Android launcher package.</p>
 
-  <!-- Controls -->
-  <div class="controls-col">
+  <!-- Workspace -->
+  <div class="workspace">
 
-    <div class="panel">
-      <div class="panel-title">Icon</div>
-      <div class="field">
-        <label>Font Awesome Icon Name</label>
-        <input type="text" id="icon-input" placeholder="e.g. star, circle-check, bolt" spellcheck="false" autocomplete="off">
-        <div class="error-msg" id="error-msg">Icon not found — check spelling at fontawesome.com/icons</div>
-      </div>
-    </div>
-
-    <div class="panel">
-      <div class="panel-title">Colors</div>
-      <div class="color-row">
-        <div class="color-field">
-          <label>Icon Color</label>
-          <div class="color-picker-wrap" onclick="document.getElementById('icon-color').click()">
-            <input type="color" id="icon-color" value="#ffffff">
-            <span class="color-hex" id="icon-color-hex">#ffffff</span>
-          </div>
-        </div>
-        <div class="color-field">
-          <label>Background</label>
-          <div class="color-picker-wrap" onclick="document.getElementById('bg-color').click()">
-            <input type="color" id="bg-color" value="#ff4136">
-            <span class="color-hex" id="bg-color-hex">#ff4136</span>
+    <!-- Preview -->
+    <div class="panel preview-panel">
+      <div class="panel-title">Preview</div>
+      <div class="canvas-wrapper">
+        <div id="preview-container">
+          <div class="icon-placeholder" id="placeholder">
+            <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+            <p>Enter an icon name to begin</p>
           </div>
         </div>
       </div>
-    </div>
-
-    <div class="panel">
-      <div class="panel-title">Background Shape</div>
-      <div class="shape-row">
-        <button class="shape-btn" data-shape="none" onclick="setShape('none')">
-          <div class="shape-icon none"></div>None
-        </button>
-        <button class="shape-btn active" data-shape="circle" onclick="setShape('circle')">
-          <div class="shape-icon circle"></div>Circle
-        </button>
-        <button class="shape-btn" data-shape="rounded" onclick="setShape('rounded')">
-          <div class="shape-icon rounded"></div>Rounded
-        </button>
-        <button class="shape-btn" data-shape="square" onclick="setShape('square')">
-          <div class="shape-icon square"></div>Square
-        </button>
+      <div class="preview-meta" id="preview-meta" style="display:none;">
+        <div class="preview-badge">icon: <span id="meta-icon">—</span></div>
+        <div class="preview-badge">color: <span id="meta-color">—</span></div>
+        <div class="preview-badge">bg: <span id="meta-bg">—</span></div>
       </div>
-      <hr class="divider">
-      <div class="field">
-        <label>Icon Scale — <span id="size-label">70%</span></label>
-        <input type="range" id="icon-scale" min="20" max="90" value="70">
+      <div class="android-preview" id="android-preview">
+        <div class="android-preview-title">Android Adaptive Preview</div>
+        <div class="android-sizes-row" id="android-sizes-row"></div>
       </div>
     </div>
 
-    <!-- Export -->
-    <div class="panel">
-      <div class="panel-title">Export</div>
+    <!-- Controls -->
+    <div class="controls-col">
 
-      <label style="display:block;margin-bottom:0.5rem;">Resolution Presets</label>
-      <div class="preset-grid">
-        <button class="preset-btn" onclick="setPreset(16)">16px</button>
-        <button class="preset-btn" onclick="setPreset(32)">32px</button>
-        <button class="preset-btn" onclick="setPreset(64)">64px</button>
-        <button class="preset-btn active" onclick="setPreset(128)">128px</button>
-        <button class="preset-btn" onclick="setPreset(256)">256px</button>
-        <button class="preset-btn" onclick="setPreset(512)">512px</button>
-        <button class="preset-btn" onclick="setPreset(1024)">1024px</button>
-        <button class="preset-btn" onclick="setPreset(2048)">2048px</button>
-      </div>
-
-      <label style="display:block;margin-bottom:0.5rem;">Custom Size</label>
-      <div class="custom-res">
-        <input type="text" id="custom-w" value="128" style="text-align:center;">
-        <span>×</span>
-        <input type="text" id="custom-h" value="128" style="text-align:center;">
-        <span>px</span>
-      </div>
-
-      <div class="export-row">
-        <button class="export-btn" onclick="exportAs('svg')"><span class="fmt">SVG</span> Export</button>
-        <button class="export-btn" onclick="exportAs('png')"><span class="fmt">PNG</span> Export</button>
-      </div>
-
-      <!-- Android export section -->
-      <div class="android-divider">
-        <hr><span>Android</span><hr>
-      </div>
-
-      <button class="android-btn" id="android-btn" onclick="exportAndroid()">
-        <i class="fa-brands fa-android" style="font-size:1.1rem;"></i>
-        <span>
-          <span class="android-label">Export Android Package</span>
-          <span class="android-sub">· .zip</span>
-        </span>
-      </button>
-
-      <div class="progress-wrap" id="progress-wrap">
-        <div class="progress-bar-track">
-          <div class="progress-bar-fill" id="progress-fill"></div>
+      <div class="panel">
+        <div class="panel-title">Icon</div>
+        <div class="field">
+          <label>Font Awesome Icon Name</label>
+          <input type="text" id="icon-input" placeholder="e.g. star, circle-check, bolt" spellcheck="false" autocomplete="off">
+          <div class="error-msg" id="error-msg">Icon not found — check spelling at fontawesome.com/icons</div>
         </div>
-        <div class="progress-label" id="progress-label">Preparing…</div>
       </div>
-    </div>
 
+      <div class="panel">
+        <div class="panel-title">Colors</div>
+        <div class="color-row">
+          <div class="color-field">
+            <label>Icon Color</label>
+            <div class="color-picker-wrap" onclick="document.getElementById('icon-color').click()">
+              <input type="color" id="icon-color" value="#ffffff">
+              <span class="color-hex" id="icon-color-hex">#ffffff</span>
+            </div>
+          </div>
+          <div class="color-field">
+            <label>Background</label>
+            <div class="color-picker-wrap" onclick="document.getElementById('bg-color').click()">
+              <input type="color" id="bg-color" value="#ff4136">
+              <span class="color-hex" id="bg-color-hex">#ff4136</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title">Background Shape</div>
+        <div class="shape-row">
+          <button class="shape-btn" data-shape="none" onclick="setShape('none')">
+            <div class="shape-icon none"></div>None
+          </button>
+          <button class="shape-btn active" data-shape="circle" onclick="setShape('circle')">
+            <div class="shape-icon circle"></div>Circle
+          </button>
+          <button class="shape-btn" data-shape="rounded" onclick="setShape('rounded')">
+            <div class="shape-icon rounded"></div>Rounded
+          </button>
+          <button class="shape-btn" data-shape="square" onclick="setShape('square')">
+            <div class="shape-icon square"></div>Square
+          </button>
+        </div>
+        <hr class="divider">
+        <div class="field">
+          <label>Icon Scale — <span id="size-label">70%</span></label>
+          <input type="range" id="icon-scale" min="20" max="90" value="70">
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title">Export</div>
+
+        <label style="display:block;margin-bottom:0.45rem;">Resolution Presets</label>
+        <div class="preset-grid">
+          <button class="preset-btn" onclick="setPreset(16)">16px</button>
+          <button class="preset-btn" onclick="setPreset(32)">32px</button>
+          <button class="preset-btn" onclick="setPreset(64)">64px</button>
+          <button class="preset-btn active" onclick="setPreset(128)">128px</button>
+          <button class="preset-btn" onclick="setPreset(256)">256px</button>
+          <button class="preset-btn" onclick="setPreset(512)">512px</button>
+          <button class="preset-btn" onclick="setPreset(1024)">1024px</button>
+          <button class="preset-btn" onclick="setPreset(2048)">2048px</button>
+        </div>
+
+        <label style="display:block;margin-bottom:0.45rem;">Custom Size</label>
+        <div class="custom-res">
+          <input type="text" id="custom-w" value="128" style="text-align:center;">
+          <span>×</span>
+          <input type="text" id="custom-h" value="128" style="text-align:center;">
+          <span>px</span>
+        </div>
+
+        <div class="export-row">
+          <button class="export-btn" onclick="exportAs('svg')"><span class="fmt">SVG</span> Export</button>
+          <button class="export-btn" onclick="exportAs('png')"><span class="fmt">PNG</span> Export</button>
+        </div>
+
+        <!-- Android -->
+        <div class="android-divider"><hr><span>Android</span><hr></div>
+
+        <label class="checkbox-row" for="material-toggle">
+          <div class="custom-checkbox">
+            <input type="checkbox" id="material-toggle">
+            <div class="checkbox-box"><i class="fa-solid fa-check"></i></div>
+          </div>
+          <div class="checkbox-text">
+            <span class="checkbox-label">Include Material You / Themed Icons</span>
+            <span class="checkbox-sub">Adds &lt;monochrome&gt; layer for Android 13+</span>
+          </div>
+        </label>
+
+        <button class="android-btn" id="android-btn" onclick="exportAndroid()">
+          <i class="fa-brands fa-android" style="font-size:1.05rem;"></i>
+          <span>
+            <span class="android-label">Export Android Package</span>
+            <span class="android-sub">· .zip</span>
+          </span>
+        </button>
+
+        <div class="progress-wrap" id="progress-wrap">
+          <div class="progress-bar-track"><div class="progress-bar-fill" id="progress-fill"></div></div>
+          <div class="progress-label" id="progress-label">Preparing…</div>
+        </div>
+      </div>
+
+    </div>
   </div>
-</div>
+
+  <!-- More Tools section -->
+  <div class="more-tools">
+    <h3>More s17 Labs Tools</h3>
+    <p>Discover more free, browser-based utilities designed for creators and developers.</p>
+    <a href="https://s17labs.github.io/tools/" class="more-tools-btn">
+      <i class="fa-solid fa-arrow-left"></i> View More Tools
+    </a>
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer">
+    © <script>document.write(new Date().getFullYear())</script> <b>s17 Labs</b>
+    &bull;
+    <a href="https://github.com/s17labs/tools" target="_blank">
+      <i class="fa-brands fa-github"></i> Source Code
+    </a>
+  </footer>
+
+</div><!-- /.page -->
 
 <script>
-// ── State ──────────────────────────────────────────────────────────────────────
+// ── State ────────────────────────────────────────────────────────────────────
 const S = {
   iconName: '', iconColor: '#ffffff', bgColor: '#ff4136',
   bgShape: 'circle', iconScale: 70,
   paths: null, viewBox: '0 0 512 512', valid: false
 };
 
-// ── FA API lookup ──────────────────────────────────────────────────────────────
+// ── FA API lookup ────────────────────────────────────────────────────────────
 function findIcon(name) {
   if (!window.FontAwesome) return null;
   for (const prefix of ['fas','far','fab','fal','fat']) {
@@ -533,8 +642,7 @@ function findIcon(name) {
   return null;
 }
 
-// ── Build SVG ─────────────────────────────────────────────────────────────────
-// shapeOverride lets us force a specific shape without mutating state
+// ── Build SVG ────────────────────────────────────────────────────────────────
 function buildSVG(shapeOverride) {
   const shape = shapeOverride ?? S.bgShape;
   const { paths, viewBox, iconColor, bgColor, iconScale } = S;
@@ -549,7 +657,7 @@ function buildSVG(shapeOverride) {
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">${bgEl}<svg x="${pad}" y="${pad}" width="${iconScale}" height="${iconScale}" viewBox="${viewBox}">${pathEls}</svg></svg>`;
 }
 
-// ── Render preview ────────────────────────────────────────────────────────────
+// ── Render preview ───────────────────────────────────────────────────────────
 function render() {
   const container = document.getElementById('preview-container');
   const placeholder = document.getElementById('placeholder');
@@ -576,7 +684,7 @@ function render() {
   document.getElementById('meta-bg').textContent = S.bgShape === 'none' ? 'transparent' : S.bgColor;
 }
 
-// ── Inputs ────────────────────────────────────────────────────────────────────
+// ── Inputs ───────────────────────────────────────────────────────────────────
 let timer;
 document.getElementById('icon-input').addEventListener('input', function() {
   clearTimeout(timer);
@@ -616,7 +724,7 @@ document.getElementById('icon-scale').addEventListener('input', function() {
   render();
 });
 
-// ── Resolution presets ────────────────────────────────────────────────────────
+// ── Resolution presets ───────────────────────────────────────────────────────
 function setPreset(px) {
   document.getElementById('custom-w').value = px;
   document.getElementById('custom-h').value = px;
@@ -630,20 +738,17 @@ function setPreset(px) {
   )
 );
 
-// ── Standard export ───────────────────────────────────────────────────────────
+// ── Standard export ──────────────────────────────────────────────────────────
 function exportAs(fmt) {
   if (!S.valid) { alert('Enter a valid icon name first.'); return; }
   const w = +document.getElementById('custom-w').value || 128;
   const h = +document.getElementById('custom-h').value || 128;
-  const markup = buildSVG();
   const fname = `${S.iconName}-icon`;
-
-  if (fmt === 'svg') { dl(URL.createObjectURL(new Blob([markup], {type:'image/svg+xml'})), fname + '.svg'); return; }
-
-  svgToPngBlob(markup, w, h).then(b => dl(URL.createObjectURL(b), `${fname}-${w}x${h}.png`));
+  if (fmt === 'svg') { dl(URL.createObjectURL(new Blob([buildSVG()], {type:'image/svg+xml'})), fname + '.svg'); return; }
+  svgToPngBlob(buildSVG(), w, h).then(b => dl(URL.createObjectURL(b), `${fname}-${w}x${h}.png`));
 }
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
+// ── Helpers ──────────────────────────────────────────────────────────────────
 function dl(url, name) { Object.assign(document.createElement('a'), {href:url, download:name}).click(); }
 
 function svgToPngBlob(svgMarkup, w, h) {
@@ -662,14 +767,15 @@ function svgToPngBlob(svgMarkup, w, h) {
   });
 }
 
-// ── Android VectorDrawable XML ────────────────────────────────────────────────
+// ── Android XML builders ─────────────────────────────────────────────────────
 function buildForegroundXML() {
-  // Android adaptive foreground: 108×108dp canvas, icon lives in center 72×72 safe zone
   const [,,vbW,vbH] = S.viewBox.split(' ').map(Number);
-  const scale = 72 / Math.max(vbW, vbH);
+  // Scale icon to iconScale% of the 72dp safe zone, then center in 108dp canvas
+  const safeDp  = 72 * (S.iconScale / 100);
+  const scale   = safeDp / Math.max(vbW, vbH);
   const scaledW = vbW * scale, scaledH = vbH * scale;
-  const tx = (18 + (72 - scaledW) / 2).toFixed(4);
-  const ty = (18 + (72 - scaledH) / 2).toFixed(4);
+  const tx = ((108 - scaledW) / 2).toFixed(4);
+  const ty = ((108 - scaledH) / 2).toFixed(4);
   const sc = scale.toFixed(6);
 
   const pathEls = S.paths.map((d, i) => {
@@ -679,14 +785,16 @@ function buildForegroundXML() {
 
   return `<?xml version="1.0" encoding="utf-8"?>
 <!-- Adaptive icon foreground — generated by s17 Labs Icon Maker -->
+<!-- https://s17labs.github.io/tools/icon-maker/ -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="108dp"
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
     <!--
-        Safe zone: center 72×72dp (18dp padding on each side).
-        Icon scaled from ${S.viewBox} → fits within safe zone.
+        Safe zone: center 72×72dp (18dp inset from each edge).
+        Icon scale: ${S.iconScale}% — occupies ${safeDp.toFixed(1)}dp within the safe zone.
+        Original viewBox: ${S.viewBox}
     -->
     <group
         android:translateX="${tx}"
@@ -698,114 +806,143 @@ ${pathEls}
 </vector>`;
 }
 
-function buildBackgroundXML(color) {
+function buildBackgroundXML() {
   return `<?xml version="1.0" encoding="utf-8"?>
 <!-- Adaptive icon background — generated by s17 Labs Icon Maker -->
+<!-- https://s17labs.github.io/tools/icon-maker/ -->
 <shape xmlns:android="http://schemas.android.com/apk/res/android">
-    <solid android:color="${color}"/>
+    <solid android:color="${S.bgColor}"/>
 </shape>`;
 }
 
-function buildAdaptiveIconXML(monochrome = false) {
+function buildAdaptiveIconXML(monochrome) {
   const mono = monochrome
-    ? `\n    <!-- Monochrome layer for Android 13+ themed icons -->\n    <monochrome android:drawable="@drawable/ic_launcher_foreground"/>`
+    ? `\n    <!-- Monochrome layer: Android 13+ (API 33) themed icons -->\n    <monochrome android:drawable="@drawable/ic_launcher_foreground"/>`
     : '';
   return `<?xml version="1.0" encoding="utf-8"?>
 <!-- Adaptive icon — generated by s17 Labs Icon Maker -->
+<!-- https://s17labs.github.io/tools/icon-maker/ -->
 <adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
     <background android:drawable="@drawable/ic_launcher_background"/>
     <foreground android:drawable="@drawable/ic_launcher_foreground"/>${mono}
 </adaptive-icon>`;
 }
 
-function buildColorsXML(color) {
+function buildColorsXML() {
   return `<?xml version="1.0" encoding="utf-8"?>
+<!-- Generated by s17 Labs Icon Maker — https://s17labs.github.io/tools/icon-maker/ -->
 <resources>
-    <!-- Launcher icon background color — generated by s17 Labs Icon Maker -->
-    <color name="ic_launcher_background">${color}</color>
+    <color name="ic_launcher_background">${S.bgColor}</color>
 </resources>`;
 }
 
-function buildReadme() {
-  return `ANDROID ICON PACKAGE
-Generated by s17 Labs Icon Maker — https://s17labs.github.io
-Icon: ${S.iconName}
-Icon Color: ${S.iconColor}
-Background Color: ${S.bgColor}
-Generated: ${new Date().toISOString()}
+function buildReadme(withMonochrome) {
+  const monoSection = withMonochrome
+    ? `YES — <monochrome> element included in ic_launcher.xml and ic_launcher_round.xml.
+   Android 13+ (API 33) will use this layer for Material You themed icons,
+   tinting it automatically to match the device wallpaper color scheme.`
+    : `NO  — not included. Re-export with "Include Material You / Themed Icons"
+   checked to add the <monochrome> layer for Android 13+ support.`;
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  return `╔══════════════════════════════════════════════════════════════╗
+║           ANDROID ICON PACKAGE — s17 Labs Icon Maker         ║
+║           https://s17labs.github.io/tools/icon-maker/        ║
+╚══════════════════════════════════════════════════════════════╝
+
+ICON DETAILS
+  Name:              ${S.iconName}
+  Icon color:        ${S.iconColor}
+  Background color:  ${S.bgColor}
+  Icon scale:        ${S.iconScale}% of adaptive safe zone
+  Material You:      ${monoSection}
+  Generated:         ${new Date().toUTCString()}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 DROP-IN INSTRUCTIONS
-1. Copy all mipmap-* folders into  app/src/main/res/
-2. Copy all drawable* folders into  app/src/main/res/
-3. Copy values/ into               app/src/main/res/
-4. In AndroidManifest.xml confirm:
-     android:icon="@mipmap/ic_launcher"
-     android:roundIcon="@mipmap/ic_launcher_round"
+  1. Copy the entire res/ folder into your Android project's
+     app/src/main/ directory (merge, do not replace).
+  2. In AndroidManifest.xml, set:
+       android:icon="@mipmap/ic_launcher"
+       android:roundIcon="@mipmap/ic_launcher_round"
+  3. Copy play_store_icon.png to your Play Store listing assets.
+  4. Clean and rebuild the project (Build → Clean Project).
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-PACKAGE CONTENTS
+PACKAGE STRUCTURE
 
-mipmap-mdpi/
-  ic_launcher.png         48 × 48 px   (square)
-  ic_launcher_round.png   48 × 48 px   (circular)
+  res/
+  ├── mipmap-mdpi/
+  │   ├── ic_launcher.png            48 × 48 px   (square, current shape)
+  │   └── ic_launcher_round.png      48 × 48 px   (circular)
+  ├── mipmap-hdpi/
+  │   ├── ic_launcher.png            72 × 72 px
+  │   └── ic_launcher_round.png      72 × 72 px
+  ├── mipmap-xhdpi/
+  │   ├── ic_launcher.png            96 × 96 px
+  │   └── ic_launcher_round.png      96 × 96 px
+  ├── mipmap-xxhdpi/
+  │   ├── ic_launcher.png           144 × 144 px
+  │   └── ic_launcher_round.png     144 × 144 px
+  ├── mipmap-xxxhdpi/
+  │   ├── ic_launcher.png           192 × 192 px
+  │   └── ic_launcher_round.png     192 × 192 px
+  ├── mipmap-anydpi-v26/
+  │   ├── ic_launcher.xml           Adaptive icon${withMonochrome ? ' + monochrome (API 33+)' : ' (API 26+)'}
+  │   └── ic_launcher_round.xml     Adaptive icon${withMonochrome ? ' + monochrome (API 33+)' : ' (API 26+)'}
+  ├── drawable/
+  │   ├── ic_launcher_background.xml   Solid color background layer
+  │   └── ic_launcher_foreground.xml   Vector foreground (scale: ${S.iconScale}%)
+  ├── drawable-v24/
+  │   └── ic_launcher_foreground.xml   Foreground — explicit API 24+ copy
+  └── values/
+      └── colors.xml                   ic_launcher_background color resource
 
-mipmap-hdpi/
-  ic_launcher.png         72 × 72 px
-  ic_launcher_round.png   72 × 72 px
+  play_store_icon.png                  512 × 512 px  (Play Store listing)
 
-mipmap-xhdpi/
-  ic_launcher.png         96 × 96 px
-  ic_launcher_round.png   96 × 96 px
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-mipmap-xxhdpi/
-  ic_launcher.png        144 × 144 px
-  ic_launcher_round.png  144 × 144 px
+ABOUT ADAPTIVE ICONS  (Android 8.0 / API 26+)
 
-mipmap-xxxhdpi/
-  ic_launcher.png        192 × 192 px
-  ic_launcher_round.png  192 × 192 px
+  Adaptive icons use two separate layers that the launcher composites:
 
-mipmap-anydpi-v26/
-  ic_launcher.xml        Adaptive icon (API 26+)
-  ic_launcher_round.xml  Adaptive icon round (API 26+)
+    Background (ic_launcher_background.xml)
+      A solid-color shape using the chosen background color (${S.bgColor}).
 
-drawable/
-  ic_launcher_background.xml   Solid color background layer
-  ic_launcher_foreground.xml   Vector foreground layer
+    Foreground (ic_launcher_foreground.xml)
+      A VectorDrawable on a 108 × 108dp canvas. The icon is scaled to
+      ${S.iconScale}% of the 72dp safe zone (18dp inset from each edge)
+      and centered. The launcher clips both layers with its own mask
+      (circle, squircle, rounded rect, etc.) at runtime.
 
-drawable-v24/
-  ic_launcher_foreground.xml   Same foreground, explicit API 24+ copy
+  The PNG mipmaps serve as fallbacks on Android 7.1 and below.
 
-values/
-  colors.xml             ic_launcher_background color resource
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+${withMonochrome ? `
+MATERIAL YOU / THEMED ICONS  (Android 13 / API 33+)
 
-play_store_icon.png      512 × 512 px  (Google Play Store listing)
+  The <monochrome> element in mipmap-anydpi-v26/ic_launcher.xml
+  points to the same foreground drawable. Android strips color
+  and applies a tint derived from the device's wallpaper palette
+  (Material You dynamic color) automatically — no code change needed.
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  Supported launchers include: Pixel Launcher, One UI 5+, and most
+  AOSP-based launchers on Android 13+.
 
-ADAPTIVE ICONS (Android 8.0 / API 26+)
-The adaptive icon system separates the launcher icon into two layers:
-  • Background: solid color shape (ic_launcher_background.xml)
-  • Foreground: vector drawable centered in 108dp canvas with a
-    72dp safe zone (18dp padding). Your device's launcher applies
-    its own shape mask (circle, squircle, rounded rect, etc.).
-
-MONOCHROME (Android 13 / API 33+)
-Themed icons are supported. The <monochrome> element reuses the
-foreground drawable; Android tints it automatically to match the
-device's Material You color scheme.
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`;
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+` : ''}
+Generated by s17 Labs Icon Maker — https://s17labs.github.io/tools/icon-maker/
+Part of s17 Labs Tools  — https://s17labs.github.io/tools/
+Source Code              — https://github.com/s17labs/tools`;
 }
 
-// ── Android export ────────────────────────────────────────────────────────────
+// ── Android export ───────────────────────────────────────────────────────────
 async function exportAndroid() {
   if (!S.valid) { alert('Enter a valid icon name first.'); return; }
-  if (typeof JSZip === 'undefined') { alert('JSZip failed to load. Please check your connection.'); return; }
+  if (typeof JSZip === 'undefined') { alert('JSZip failed to load. Check your connection.'); return; }
 
+  const withMonochrome = document.getElementById('material-toggle').checked;
   const btn = document.getElementById('android-btn');
   const progressWrap = document.getElementById('progress-wrap');
   const progressFill = document.getElementById('progress-fill');
@@ -822,9 +959,9 @@ async function exportAndroid() {
 
   try {
     const zip = new JSZip();
+    const res = zip.folder('res');
     const safeName = S.iconName.replace(/-/g, '_');
 
-    // Mipmap sizes: [density, square-size]
     const densities = [
       ['mdpi',    48],
       ['hdpi',    72],
@@ -833,117 +970,91 @@ async function exportAndroid() {
       ['xxxhdpi', 192],
     ];
 
-    const totalSteps = densities.length * 2 + 1; // square + round per density + play store
     let step = 0;
+    const totalSteps = densities.length * 2 + 1;
 
     function nextStep(label) {
       step++;
       setProgress(Math.round((step / totalSteps) * 80), label);
     }
 
-    // Generate square launcher icons (using current shape setting)
     for (const [density, size] of densities) {
-      const squareSVG = buildSVG(); // use current bgShape
-      const squareBlob = await svgToPngBlob(squareSVG, size, size);
-      zip.folder(`mipmap-${density}`).file('ic_launcher.png', squareBlob);
-      nextStep(`mipmap-${density}/ic_launcher.png (${size}px)`);
+      const squareBlob = await svgToPngBlob(buildSVG(), size, size);
+      res.folder(`mipmap-${density}`).file('ic_launcher.png', squareBlob);
+      nextStep(`mipmap-${density}/ic_launcher.png  ${size}px`);
 
-      // Round icon: always use circle clipping regardless of current shape
-      const roundSVG = buildSVG('circle');
-      const roundBlob = await svgToPngBlob(roundSVG, size, size);
-      zip.folder(`mipmap-${density}`).file('ic_launcher_round.png', roundBlob);
-      nextStep(`mipmap-${density}/ic_launcher_round.png (${size}px)`);
+      const roundBlob = await svgToPngBlob(buildSVG('circle'), size, size);
+      res.folder(`mipmap-${density}`).file('ic_launcher_round.png', roundBlob);
+      nextStep(`mipmap-${density}/ic_launcher_round.png  ${size}px`);
     }
 
-    // Play Store icon 512×512
-    setProgress(82, 'play_store_icon.png (512px)…');
+    setProgress(82, 'play_store_icon.png  512px…');
     const playBlob = await svgToPngBlob(buildSVG(), 512, 512);
     zip.file('play_store_icon.png', playBlob);
 
-    // ── XML files ──
     setProgress(86, 'Building adaptive icon XMLs…');
+    const adaptiveXML = buildAdaptiveIconXML(withMonochrome);
+    res.folder('mipmap-anydpi-v26').file('ic_launcher.xml', adaptiveXML);
+    res.folder('mipmap-anydpi-v26').file('ic_launcher_round.xml', adaptiveXML);
 
-    // mipmap-anydpi-v26 adaptive icons (API 26+, includes monochrome for API 33+)
-    const adaptiveXML = buildAdaptiveIconXML(true);
-    zip.folder('mipmap-anydpi-v26').file('ic_launcher.xml', adaptiveXML);
-    zip.folder('mipmap-anydpi-v26').file('ic_launcher_round.xml', adaptiveXML);
-
-    // drawable: background + foreground
     setProgress(89, 'Building vector drawables…');
-    const bgXML = buildBackgroundXML(S.bgColor);
     const fgXML = buildForegroundXML();
-    zip.folder('drawable').file('ic_launcher_background.xml', bgXML);
-    zip.folder('drawable').file('ic_launcher_foreground.xml', fgXML);
+    res.folder('drawable').file('ic_launcher_background.xml', buildBackgroundXML());
+    res.folder('drawable').file('ic_launcher_foreground.xml', fgXML);
+    res.folder('drawable-v24').file('ic_launcher_foreground.xml', fgXML);
 
-    // drawable-v24: explicit API 24+ copy of foreground
-    zip.folder('drawable-v24').file('ic_launcher_foreground.xml', fgXML);
-
-    // values/colors.xml
     setProgress(92, 'Building values/colors.xml…');
-    zip.folder('values').file('colors.xml', buildColorsXML(S.bgColor));
+    res.folder('values').file('colors.xml', buildColorsXML());
 
-    // README
-    zip.file('README.txt', buildReadme());
+    zip.file('README.txt', buildReadme(withMonochrome));
 
-    // ── Generate ZIP ──
-    setProgress(95, 'Compressing…');
+    setProgress(96, 'Compressing…');
     const zipBlob = await zip.generateAsync({
-      type: 'blob',
-      compression: 'DEFLATE',
-      compressionOptions: { level: 6 }
+      type: 'blob', compression: 'DEFLATE', compressionOptions: { level: 6 }
     });
 
-    setProgress(100, `Done — ${densities.length * 2 + 1} images + XML files`);
+    const monoNote = withMonochrome ? ' + Material You' : '';
+    setProgress(100, `Done — ${densities.length * 2 + 1} images + XMLs${monoNote}`);
 
-    // Show android preview thumbnails
     showAndroidPreview(densities);
-
-    // Trigger download
     dl(URL.createObjectURL(zipBlob), `${safeName}-android-icons.zip`);
 
-    // Reset button after short delay
     setTimeout(() => {
       btn.disabled = false;
-      btn.innerHTML = `<i class="fa-brands fa-android" style="font-size:1.1rem;"></i><span><span class="android-label">Export Android Package</span><span class="android-sub"> · .zip</span></span>`;
+      btn.innerHTML = `<i class="fa-brands fa-android" style="font-size:1.05rem;"></i><span><span class="android-label">Export Android Package</span><span class="android-sub"> · .zip</span></span>`;
       progressWrap.classList.remove('visible');
-    }, 2500);
+    }, 2800);
 
   } catch(e) {
     console.error(e);
     btn.disabled = false;
-    btn.innerHTML = `<i class="fa-brands fa-android" style="font-size:1.1rem;"></i><span><span class="android-label">Export Android Package</span><span class="android-sub"> · .zip</span></span>`;
+    btn.innerHTML = `<i class="fa-brands fa-android" style="font-size:1.05rem;"></i><span><span class="android-label">Export Android Package</span><span class="android-sub"> · .zip</span></span>`;
     progressWrap.classList.remove('visible');
     alert('Export failed: ' + e.message);
   }
 }
 
-// ── Android preview thumbnails ────────────────────────────────────────────────
+// ── Android preview thumbnails ───────────────────────────────────────────────
 async function showAndroidPreview(densities) {
   const container = document.getElementById('android-sizes-row');
   const panel = document.getElementById('android-preview');
   container.innerHTML = '';
 
-  const previewSizes = [[48,'mdpi'],[96,'xhdpi'],[144,'xxhdpi'],[192,'xxxhdpi']];
-
-  for (const [size, label] of previewSizes) {
-    const svg = buildSVG('circle');
-    const url = URL.createObjectURL(new Blob([svg], {type:'image/svg+xml;charset=utf-8'}));
-    const img = new Image();
-
+  for (const [label, size] of [['mdpi',48],['xhdpi',96],['xxhdpi',144],['xxxhdpi',192]]) {
+    const url = URL.createObjectURL(new Blob([buildSVG('circle')], {type:'image/svg+xml;charset=utf-8'}));
     await new Promise(res => {
+      const img = new Image();
       img.onload = () => {
-        const displaySize = Math.min(size, 56); // cap preview display size
+        const dispSize = Math.min(size, 52);
         const c = document.createElement('canvas');
-        c.width = displaySize; c.height = displaySize;
-        c.getContext('2d').drawImage(img, 0, 0, displaySize, displaySize);
+        c.width = dispSize; c.height = dispSize;
+        c.getContext('2d').drawImage(img, 0, 0, dispSize, dispSize);
         URL.revokeObjectURL(url);
-
         const item = document.createElement('div');
         item.className = 'android-size-item';
         const sp = document.createElement('span');
         sp.textContent = label;
-        item.appendChild(c);
-        item.appendChild(sp);
+        item.appendChild(c); item.appendChild(sp);
         container.appendChild(item);
         res();
       };
@@ -954,7 +1065,7 @@ async function showAndroidPreview(densities) {
   panel.classList.add('visible');
 }
 
-// ── Init ──────────────────────────────────────────────────────────────────────
+// ── Init ─────────────────────────────────────────────────────────────────────
 setPreset(128);
 </script>
 </body>
