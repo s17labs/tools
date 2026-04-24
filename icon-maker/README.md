@@ -2,11 +2,13 @@
 
 [Explore the Live Tool »](https://s17labs.github.io/tools/icon-maker)
 
-Generate and export custom icons — with full Android launcher package export.
-Generate and export custom icons using Font Awesome — with color, shape, scale controls, and full Android launcher package export.
+Generate custom icons from Font Awesome, Noto Emoji, or Twemoji. Control colors, shape, and scale — export as SVG, PNG, or a full Android launcher package.
+
 ## Features
 
 * **Font Awesome**: Type any Font Awesome icon name (e.g. circle-check, star, bolt, github) — it auto-tries fas, far, and fab prefixes.
+* **Noto Emoji**: Paste or type any emoji (😀 🎉 🔥 🇺🇸 👨‍💻), fetches from cdn.jsdelivr.net/gh/googlefonts/noto-emoji. Codepoint conversion strips ZWJ and VS16 to match Noto's file naming.
+* **Twemoji**: same input, fetches from cdn.jsdelivr.net/gh/jdecked/twemoji@15.1.0. Keeps ZWJ sequences intact (needed for things like 👨‍💻 family emoji) and only strips VS16 on non-ZWJ emoji.
 * **Preview**: Live icon maker preview with colors, shapes, etc.
 * **Colors**: Independent color pickers for icon color and background color, with live hex display.
 * **Background Shapes**: 4 background shapes: None (transparent), Circle, Rounded Square, Square.
