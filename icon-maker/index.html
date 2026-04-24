@@ -4,20 +4,16 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Icon Maker | s17 Labs Tools</title>
-  
-  <meta name="description" content="Generate and export custom icons using Font Awesome — with color, shape, scale controls, and full Android launcher package export.">
+  <meta name="description" content="Generate and export custom icons using Font Awesome, Noto Emoji, or Twemoji — with color, shape, scale controls, and full Android launcher package export.">
   <meta property="og:title" content="Icon Maker | s17 Labs Tools">
-  <meta property="og:description" content="Generate and export custom icons using Font Awesome — with color, shape, scale controls, and full Android launcher package export.">
+  <meta property="og:description" content="Generate and export custom icons using Font Awesome, Noto Emoji, or Twemoji — with color, shape, scale controls, and full Android launcher package export.">
   <meta property="og:site_name" content="s17 Labs Tools">
-
   <link rel="icon" type="image/x-icon" href="https://s17labs.github.io/src/assets/favicon.ico">
-  
   <link href="https://fonts.googleapis.com/css2?family=Aldrich&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/js/all.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
   <style>
-    /* ── Tokens ── */
     :root {
       --primary:        #0e0e10;
       --accent:         #ff4136;
@@ -50,10 +46,8 @@
     }
 
     body::-webkit-scrollbar { display: none; }
-
     a { color: inherit; text-decoration: none; transition: var(--t); }
 
-    /* ── Page wrapper ── */
     .page {
       width: 100%;
       max-width: 900px;
@@ -63,7 +57,7 @@
       flex: 1;
     }
 
-    /* ── Header ── */
+    /* Header */
     .tool-header {
       width: 100%;
       text-align: center;
@@ -76,31 +70,20 @@
     }
 
     .back-link {
-      position: absolute;
-      left: 0;
-      background: none;
-      border: none;
-      color: var(--secondary-text);
-      cursor: pointer;
-      font-size: 1rem;
-      font-family: Verdana, sans-serif;
-      display: inline-flex;
-      align-items: center;
-      gap: 0.45rem;
-      padding: 0;
-      transition: var(--t);
-      text-decoration: none;
+      position: absolute; left: 0;
+      background: none; border: none;
+      color: var(--secondary-text); cursor: pointer;
+      font-size: 1rem; font-family: Verdana, sans-serif;
+      display: inline-flex; align-items: center; gap: 0.45rem;
+      padding: 0; transition: var(--t); text-decoration: none;
     }
 
     .back-link:hover { color: var(--accent); }
 
     .tool-header h1 {
       font-family: Aldrich, sans-serif;
-      font-size: 1.8rem;
-      line-height: 1;
-      display: inline-flex;
-      align-items: center;
-      gap: 0.25em;
+      font-size: 1.8rem; line-height: 1;
+      display: inline-flex; align-items: center; gap: 0.25em;
     }
 
     .cube {
@@ -119,7 +102,7 @@
       line-height: 1.55;
     }
 
-    /* ── Tool workspace ── */
+    /* Workspace */
     .workspace {
       width: 100%;
       display: grid;
@@ -128,7 +111,6 @@
       align-items: start;
     }
 
-    /* ── Panel ── */
     .panel {
       background: rgba(255,255,255,0.02);
       border: 1px solid var(--border);
@@ -145,7 +127,7 @@
       margin-bottom: 1.1rem;
     }
 
-    /* ── Preview panel ── */
+    /* Preview */
     .preview-panel { display: flex; flex-direction: column; align-items: center; gap: 1.25rem; }
 
     .canvas-wrapper {
@@ -177,7 +159,7 @@
 
     .preview-badge span { color: var(--primary-text); }
 
-    /* ── Android preview ── */
+    /* Android preview */
     .android-preview { display: none; flex-direction: column; gap: 0.6rem; }
     .android-preview.visible { display: flex; }
     .android-preview-title { font-size: 0.7rem; color: var(--secondary-text); text-transform: uppercase; letter-spacing: 0.1em; font-family: Aldrich, sans-serif; }
@@ -186,7 +168,18 @@
     .android-size-item canvas { border-radius: 3px; border: 1px solid var(--border); }
     .android-size-item span { font-size: 0.62rem; color: var(--secondary-text); font-family: 'Courier New', monospace; }
 
-    /* ── Controls column ── */
+    /* Loading spinner in preview */
+    .preview-loading {
+      display: none;
+      flex-direction: column; align-items: center; gap: 0.65rem;
+      color: var(--secondary-text); opacity: 0.5;
+      font-size: 0.78rem;
+    }
+
+    .preview-loading.visible { display: flex; }
+    .preview-loading i { font-size: 1.6rem; }
+
+    /* Controls */
     .controls-col { display: flex; flex-direction: column; gap: 1rem; }
 
     .field { display: flex; flex-direction: column; gap: 0.45rem; }
@@ -211,7 +204,62 @@
     input[type="text"]:focus { border-color: rgba(255,65,54,0.5); }
     input[type="text"]::placeholder { color: var(--secondary-text); opacity: 0.5; }
 
-    /* ── Custom color picker ── */
+    /* ── Source selector ── */
+    .source-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.4rem;
+      margin-bottom: 1rem;
+    }
+
+    .source-btn {
+      display: flex; flex-direction: column; align-items: center; gap: 0.3rem;
+      padding: 0.55rem 0.25rem;
+      background: var(--surface-2); border: 1px solid var(--border);
+      border-radius: var(--radius); cursor: pointer;
+      transition: all var(--t); color: var(--secondary-text);
+      font-size: 0.68rem; font-family: Verdana, sans-serif;
+    }
+
+    .source-btn:hover { border-color: rgba(255,65,54,0.4); color: var(--primary-text); }
+    .source-btn.active { border-color: var(--accent); background: var(--accent-dim); color: var(--primary-text); }
+
+    .source-btn .src-ico {
+      font-size: 1rem;
+      line-height: 1;
+    }
+
+    .source-btn .src-lbl {
+      font-size: 0.65rem;
+      font-family: Aldrich, sans-serif;
+      letter-spacing: 0.05em;
+    }
+
+    /* emoji input (larger for pasting actual emoji) */
+    input.emoji-input {
+      font-size: 1.3rem;
+      padding: 0.45rem 0.8rem;
+      line-height: 1.4;
+    }
+
+    /* Icon color disabled for emoji */
+    .color-field.cp-disabled {
+      opacity: 0.3;
+      pointer-events: none;
+    }
+
+    .cp-fa-only {
+      font-size: 0.65rem;
+      color: var(--secondary-text);
+      font-family: 'Courier New', monospace;
+      margin-top: 0.2rem;
+      opacity: 0.6;
+      display: none;
+    }
+
+    .cp-fa-only.visible { display: block; }
+
+    /* Custom color picker */
     .color-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.7rem; }
     .color-field { display: flex; flex-direction: column; gap: 0.45rem; }
 
@@ -227,7 +275,6 @@
     .cp-row:focus-within,
     .cp-row.open { border-color: rgba(255,65,54,0.5); }
 
-    /* Swatch button */
     .cp-swatch {
       width: 40px; flex-shrink: 0;
       border: none; border-right: 1px solid var(--border);
@@ -237,7 +284,6 @@
 
     .cp-swatch:hover { filter: brightness(1.18); }
 
-    /* Checkerboard bg so transparency is visible */
     .cp-swatch::before {
       content: ''; position: absolute; inset: 0;
       background-image:
@@ -252,7 +298,6 @@
 
     .cp-swatch-fill { position: absolute; inset: 0; }
 
-    /* Hex text input */
     .cp-hex-input {
       flex: 1; min-width: 0;
       background: none; border: none; outline: none;
@@ -264,7 +309,7 @@
       height: 36px;
     }
 
-    /* ── Picker popup ── */
+    /* Picker popup */
     .cp-popup {
       position: fixed; z-index: 9000;
       background: #1c1c1e;
@@ -280,7 +325,6 @@
 
     .cp-popup.visible { display: block; }
 
-    /* SV gradient canvas */
     .cp-canvas-wrap {
       position: relative; width: 100%; height: 148px;
       border-radius: 4px; overflow: hidden; cursor: crosshair;
@@ -297,11 +341,9 @@
       transform: translate(-50%, -50%);
     }
 
-    /* Hue slider */
     .cp-hue-track {
       margin-top: 9px; height: 11px; border-radius: 99px; position: relative;
-      background: linear-gradient(to right,
-        #f00,#ff0,#0f0,#0ff,#00f,#f0f,#f00);
+      background: linear-gradient(to right, #f00,#ff0,#0f0,#0ff,#00f,#f0f,#f00);
     }
 
     input.cp-hue {
@@ -324,10 +366,7 @@
       box-shadow: 0 1px 4px rgba(0,0,0,0.5); cursor: pointer; border: none;
     }
 
-    /* Bottom row: preview swatch + hex input */
-    .cp-bottom {
-      display: flex; align-items: center; gap: 7px; margin-top: 9px;
-    }
+    .cp-bottom { display: flex; align-items: center; gap: 7px; margin-top: 9px; }
 
     .cp-preview {
       width: 28px; height: 28px; border-radius: 4px; flex-shrink: 0;
@@ -364,7 +403,7 @@
 
     .cp-hex-popup:focus { border-color: rgba(255,65,54,0.5); }
 
-    /* ── Shape buttons ── */
+    /* Shape buttons */
     .shape-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.45rem; }
 
     .shape-btn {
@@ -387,7 +426,6 @@
 
     .divider { border: none; border-top: 1px solid var(--border); margin: 0.9rem 0; }
 
-    /* Range */
     input[type="range"] {
       width: 100%; -webkit-appearance: none;
       height: 3px; background: var(--surface-3); border-radius: 99px; outline: none;
@@ -415,7 +453,6 @@
     .custom-res { display: flex; gap: 0.5rem; align-items: center; }
     .custom-res span { color: var(--secondary-text); font-size: 0.82rem; flex-shrink: 0; }
 
-    /* Standard export buttons */
     .export-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.55rem; margin-top: 0.9rem; }
 
     .export-btn {
@@ -431,26 +468,14 @@
 
     .export-btn:hover { background: var(--accent); color: var(--primary-text); }
 
-    .fmt {
-      font-family: Aldrich, sans-serif; font-size: 0.85rem;
-      color: var(--accent); transition: color var(--t);
-    }
-
+    .fmt { font-family: Aldrich, sans-serif; font-size: 0.85rem; color: var(--accent); transition: color var(--t); }
     .export-btn:hover .fmt { color: #fff; }
 
-    /* ── Android section ── */
-    .android-divider {
-      display: flex; align-items: center; gap: 0.7rem; margin: 1rem 0 0.7rem;
-    }
-
+    /* Android */
+    .android-divider { display: flex; align-items: center; gap: 0.7rem; margin: 1rem 0 0.7rem; }
     .android-divider hr { flex: 1; border: none; border-top: 1px solid var(--border); }
+    .android-divider span { font-size: 0.68rem; color: var(--secondary-text); text-transform: uppercase; letter-spacing: 0.1em; white-space: nowrap; }
 
-    .android-divider span {
-      font-size: 0.68rem; color: var(--secondary-text);
-      text-transform: uppercase; letter-spacing: 0.1em; white-space: nowrap;
-    }
-
-    /* Material You checkbox */
     .checkbox-row {
       display: flex; align-items: flex-start; gap: 0.7rem;
       margin-bottom: 0.7rem; cursor: pointer;
@@ -461,6 +486,12 @@
     }
 
     .checkbox-row:hover { border-color: rgba(61,220,132,0.3); background: rgba(61,220,132,0.04); }
+
+    /* Disabled checkbox row for emoji */
+    .checkbox-row.cb-disabled {
+      opacity: 0.3;
+      pointer-events: none;
+    }
 
     .custom-checkbox { position: relative; flex-shrink: 0; margin-top: 2px; }
     .custom-checkbox input[type="checkbox"] { position: absolute; opacity: 0; width: 0; height: 0; }
@@ -481,7 +512,6 @@
     .checkbox-label { font-size: 0.8rem; color: var(--primary-text); font-family: Verdana, sans-serif; text-transform: none; letter-spacing: 0; }
     .checkbox-sub { font-size: 0.68rem; color: var(--secondary-text); font-family: 'Courier New', monospace; line-height: 1.4; }
 
-    /* Android export button */
     .android-btn {
       width: 100%;
       display: flex; align-items: center; justify-content: center; gap: 0.6rem;
@@ -506,30 +536,22 @@
     .android-label { font-family: Aldrich, sans-serif; font-size: 0.85rem; color: var(--android); transition: color var(--t); }
     .android-sub { font-size: 0.7rem; color: rgba(61,220,132,0.55); margin-left: 0.15rem; }
 
-    /* Progress */
     .progress-wrap { margin-top: 0.7rem; display: none; }
     .progress-wrap.visible { display: block; }
     .progress-bar-track { width: 100%; height: 3px; background: var(--surface-3); border-radius: 99px; overflow: hidden; }
     .progress-bar-fill { height: 100%; width: 0%; background: var(--android); border-radius: 99px; transition: width 0.15s ease; }
     .progress-label { font-size: 0.7rem; color: var(--secondary-text); margin-top: 0.4rem; text-align: center; font-family: 'Courier New', monospace; }
 
-    /* Error */
     .error-msg { color: var(--accent); font-size: 0.75rem; min-height: 1.1em; opacity: 0; transition: opacity var(--t); }
     .error-msg.visible { opacity: 1; }
 
-    /* Placeholder */
     .icon-placeholder { display: flex; flex-direction: column; align-items: center; gap: 0.65rem; color: var(--secondary-text); opacity: 0.3; }
     .icon-placeholder svg { width: 42px; height: 42px; fill: currentColor; }
     .icon-placeholder p { font-size: 0.78rem; }
 
-    /* ── More tools section ── */
-    .more-tools {
-      width: 100%; margin: 3.5rem 0 0;
-      padding: 2rem 0 0; border-top: 1px solid var(--border); text-align: center;
-    }
-
+    /* More tools */
+    .more-tools { width: 100%; margin: 3.5rem 0 0; padding: 2rem 0 0; border-top: 1px solid var(--border); text-align: center; }
     .more-tools h3 { font-family: Aldrich, sans-serif; font-size: 1.1rem; margin-bottom: 0.55rem; }
-
     .more-tools p { color: var(--secondary-text); font-size: 0.9rem; margin-bottom: 1.4rem; line-height: 1.5; }
 
     .more-tools-btn {
@@ -543,16 +565,9 @@
 
     .more-tools-btn:hover { background: var(--accent); color: var(--primary-text); }
 
-    /* ── Footer ── */
-    .footer {
-      width: 100%; padding: 2rem 0 1.5rem;
-      color: var(--secondary-text); opacity: 0.65;
-      font-size: 0.9rem; text-align: center; margin-top: auto;
-    }
-
+    .footer { width: 100%; padding: 2rem 0 1.5rem; color: var(--secondary-text); opacity: 0.65; font-size: 0.9rem; text-align: center; margin-top: auto; }
     .footer a:hover, .footer a:active { color: var(--accent); text-decoration: underline; }
 
-    /* ── Responsive ── */
     @media (max-width: 680px) {
       .workspace { grid-template-columns: 1fr; }
       .tool-header h1 { font-size: 1.5rem; }
@@ -563,16 +578,14 @@
 
 <div class="page">
 
-  <!-- Header -->
   <div class="tool-header">
     <a href="https://s17labs.github.io/tools/" class="back-link">
       <i class="fa-solid fa-arrow-left"></i> Tools
     </a>
     <h1><span class="cube"></span> Icon Maker</h1>
   </div>
-  <p class="tool-desc">Generate custom icons from Font Awesome. Control colors, shape, and scale — export as SVG, PNG, or a full Android launcher package.</p>
+  <p class="tool-desc">Generate custom icons from Font Awesome, Noto Emoji, or Twemoji. Control colors, shape, and scale — export as SVG, PNG, or a full Android launcher package.</p>
 
-  <!-- Workspace -->
   <div class="workspace">
 
     <!-- Preview -->
@@ -582,13 +595,17 @@
         <div id="preview-container">
           <div class="icon-placeholder" id="placeholder">
             <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
-            <p>Enter an icon name to begin</p>
+            <p>Enter an icon name or emoji to begin</p>
+          </div>
+          <div class="preview-loading" id="preview-loading">
+            <i class="fa-solid fa-circle-notch fa-spin"></i>
+            <span>Fetching emoji…</span>
           </div>
         </div>
       </div>
       <div class="preview-meta" id="preview-meta" style="display:none;">
+        <div class="preview-badge">source: <span id="meta-source">—</span></div>
         <div class="preview-badge">icon: <span id="meta-icon">—</span></div>
-        <div class="preview-badge">color: <span id="meta-color">—</span></div>
         <div class="preview-badge">bg: <span id="meta-bg">—</span></div>
       </div>
       <div class="android-preview" id="android-preview">
@@ -600,10 +617,28 @@
     <!-- Controls -->
     <div class="controls-col">
 
+      <!-- Icon panel -->
       <div class="panel">
         <div class="panel-title">Icon</div>
+
+        <!-- Source selector -->
+        <div class="source-row">
+          <button class="source-btn active" data-source="fa" onclick="setSource('fa')">
+            <span class="src-ico"><i class="fa-solid fa-icons"></i></span>
+            <span class="src-lbl">Font Awesome</span>
+          </button>
+          <button class="source-btn" data-source="noto" onclick="setSource('noto')">
+            <span class="src-ico">🌈</span>
+            <span class="src-lbl">Noto Emoji</span>
+          </button>
+          <button class="source-btn" data-source="twemoji" onclick="setSource('twemoji')">
+            <span class="src-ico">🐦</span>
+            <span class="src-lbl">Twemoji</span>
+          </button>
+        </div>
+
         <div class="field">
-          <label>Font Awesome Icon Name</label>
+          <label id="input-label">Font Awesome Icon Name</label>
           <input type="text" id="icon-input" placeholder="e.g. star, circle-check, bolt" spellcheck="false" autocomplete="off">
           <div class="error-msg" id="error-msg">Icon not found — check spelling at fontawesome.com/icons</div>
         </div>
@@ -613,7 +648,7 @@
       <div class="panel">
         <div class="panel-title">Colors</div>
         <div class="color-row">
-          <div class="color-field">
+          <div class="color-field" id="icon-color-field">
             <label>Icon Color</label>
             <div class="cp-row" id="cp-row-icon">
               <button class="cp-swatch" id="cp-swatch-icon" data-target="icon" aria-label="Pick icon color">
@@ -621,6 +656,7 @@
               </button>
               <input class="cp-hex-input" id="cp-hex-icon" type="text" value="#ffffff" maxlength="7" spellcheck="false" autocomplete="off">
             </div>
+            <span class="cp-fa-only" id="cp-fa-only-note">FA only — emoji use own colors</span>
           </div>
           <div class="color-field">
             <label>Background</label>
@@ -634,7 +670,7 @@
         </div>
       </div>
 
-      <!-- Shared color picker popup (lives outside the panel so it can float freely) -->
+      <!-- Shared picker popup -->
       <div class="cp-popup" id="cp-popup">
         <div class="cp-canvas-wrap" id="cp-canvas-wrap">
           <canvas class="cp-canvas" id="cp-canvas" width="200" height="148"></canvas>
@@ -649,6 +685,7 @@
         </div>
       </div>
 
+      <!-- Shape + scale -->
       <div class="panel">
         <div class="panel-title">Background Shape</div>
         <div class="shape-row">
@@ -672,6 +709,7 @@
         </div>
       </div>
 
+      <!-- Export -->
       <div class="panel">
         <div class="panel-title">Export</div>
 
@@ -700,17 +738,16 @@
           <button class="export-btn" onclick="exportAs('png')"><span class="fmt">PNG</span> Export</button>
         </div>
 
-        <!-- Android -->
         <div class="android-divider"><hr><span>Android</span><hr></div>
 
-        <label class="checkbox-row" for="material-toggle">
+        <label class="checkbox-row" id="material-row" for="material-toggle">
           <div class="custom-checkbox">
             <input type="checkbox" id="material-toggle">
             <div class="checkbox-box"><i class="fa-solid fa-check"></i></div>
           </div>
           <div class="checkbox-text">
             <span class="checkbox-label">Include Material You / Themed Icons</span>
-            <span class="checkbox-sub">Adds &lt;monochrome&gt; layer for Android 13+</span>
+            <span class="checkbox-sub" id="material-sub">Adds &lt;monochrome&gt; layer for Android 13+</span>
           </div>
         </label>
 
@@ -731,7 +768,6 @@
     </div>
   </div>
 
-  <!-- More Tools section -->
   <div class="more-tools">
     <h3>More s17 Labs Tools</h3>
     <p>Discover more free, browser-based utilities designed for creators and developers.</p>
@@ -740,7 +776,6 @@
     </a>
   </div>
 
-  <!-- Footer -->
   <footer class="footer">
     © <script>document.write(new Date().getFullYear())</script> <b>s17 Labs</b>
     &bull;
@@ -749,18 +784,133 @@
     </a>
   </footer>
 
-</div><!-- /.page -->
+</div>
 
 <script>
-// ── Icon state ────────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────────────────────
+// State
+// ─────────────────────────────────────────────────────────────────────────────
 const S = {
-  iconName: '', iconColor: '#ffffff', bgColor: '#ff4136',
-  bgShape: 'circle', iconScale: 70,
-  paths: null, viewBox: '0 0 512 512', valid: false
+  source:    'fa',       // 'fa' | 'noto' | 'twemoji'
+  iconName:  '',         // FA icon name OR raw emoji character
+  iconColor: '#ffffff',
+  bgColor:   '#ff4136',
+  bgShape:   'circle',
+  iconScale: 70,
+  // FA specific
+  paths:     null,
+  viewBox:   '0 0 512 512',
+  // Emoji specific
+  emojiSvg:  null,       // raw SVG string from CDN
+  valid:     false
 };
 
-// ── FA API lookup ─────────────────────────────────────────────────────────────
-function findIcon(name) {
+// ─────────────────────────────────────────────────────────────────────────────
+// Source switching
+// ─────────────────────────────────────────────────────────────────────────────
+const INPUT_CONFIG = {
+  fa:       { label: 'Font Awesome Icon Name',   placeholder: 'e.g. star, circle-check, bolt',   cls: '',            error: 'Icon not found — check spelling at fontawesome.com/icons' },
+  noto:     { label: 'Noto Emoji',               placeholder: 'Paste or type an emoji  e.g. 😀 🎉 🔥', cls: 'emoji-input', error: 'Emoji not found — try a different character' },
+  twemoji:  { label: 'Twemoji',                  placeholder: 'Paste or type an emoji  e.g. 😀 🎉 🔥', cls: 'emoji-input', error: 'Emoji not found — try a different character' }
+};
+
+function setSource(src) {
+  S.source  = src;
+  S.valid   = false;
+  S.paths   = null;
+  S.emojiSvg = null;
+  S.iconName = '';
+
+  // Update source buttons
+  document.querySelectorAll('.source-btn').forEach(b =>
+    b.classList.toggle('active', b.dataset.source === src));
+
+  // Update input appearance
+  const cfg   = INPUT_CONFIG[src];
+  const input = document.getElementById('icon-input');
+  document.getElementById('input-label').textContent = cfg.label;
+  input.placeholder = cfg.placeholder;
+  input.value = '';
+  input.className = cfg.cls;
+
+  // Error message text
+  document.getElementById('error-msg').textContent = cfg.error;
+  document.getElementById('error-msg').classList.remove('visible');
+
+  // Icon color: disabled + note for emoji
+  const isEmoji = src !== 'fa';
+  document.getElementById('icon-color-field').classList.toggle('cp-disabled', isEmoji);
+  document.getElementById('cp-fa-only-note').classList.toggle('visible', isEmoji);
+
+  // Material You checkbox: only for FA (emoji won't produce VectorDrawable XMLs)
+  const row = document.getElementById('material-row');
+  row.classList.toggle('cb-disabled', isEmoji);
+  document.getElementById('material-sub').textContent = isEmoji
+    ? 'FA only — not supported for emoji sources'
+    : 'Adds <monochrome> layer for Android 13+';
+
+  render();
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Emoji codepoint helpers
+// ─────────────────────────────────────────────────────────────────────────────
+
+// Extract codepoints from an emoji string as an array of hex strings
+function emojiCodepoints(emoji) {
+  return [...emoji].map(c => c.codePointAt(0).toString(16).toLowerCase());
+}
+
+// Twemoji: keep ZWJ sequences intact, strip VS16 (fe0f) only if no ZWJ
+function toTwemojiCP(emoji) {
+  const pts = emojiCodepoints(emoji);
+  if (!pts.includes('200d')) {
+    return pts.filter(p => p !== 'fe0f').join('-');
+  }
+  return pts.join('-');
+}
+
+// Noto: strip ZWJ and VS16 (they organise differently)
+function toNotoCP(emoji) {
+  return emojiCodepoints(emoji)
+    .filter(p => p !== 'fe0f' && p !== '200d')
+    .join('_');
+}
+
+// Build CDN URL for the emoji SVG
+function emojiUrl(emoji, src) {
+  if (src === 'twemoji') {
+    const cp = toTwemojiCP(emoji);
+    return `https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.1.0/assets/svg/${cp}.svg`;
+  }
+  // noto
+  const cp = toNotoCP(emoji);
+  return `https://cdn.jsdelivr.net/gh/googlefonts/noto-emoji/svg/emoji_u${cp}.svg`;
+}
+
+// Fetch emoji SVG from CDN
+async function fetchEmojiSvg(emoji) {
+  const url = emojiUrl(emoji, S.source);
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  const text = await res.text();
+  if (!text.includes('<svg')) throw new Error('Invalid SVG');
+  return text;
+}
+
+// Encode SVG string as a data URI (handles Unicode safely)
+function svgDataUri(svgText) {
+  try {
+    return 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgText)));
+  } catch(e) {
+    return 'data:image/svg+xml,' + encodeURIComponent(svgText);
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// FA API lookup
+// ─────────────────────────────────────────────────────────────────────────────
+function findFAIcon(name) {
   if (!window.FontAwesome) return null;
   for (const prefix of ['fas','far','fab','fal','fat']) {
     try {
@@ -774,34 +924,55 @@ function findIcon(name) {
   return null;
 }
 
-// ── Build SVG ─────────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────────────────────
+// Build composite SVG
+// ─────────────────────────────────────────────────────────────────────────────
 function buildSVG(shapeOverride) {
   const shape = shapeOverride ?? S.bgShape;
-  const { paths, viewBox, iconColor, bgColor, iconScale } = S;
+  const { iconColor, bgColor, iconScale } = S;
   const pad = (100 - iconScale) / 2;
-  const rx = shape === 'circle' ? 50 : shape === 'rounded' ? 14 : 0;
-  const bgEl = shape !== 'none' ? `<rect width="100" height="100" fill="${bgColor}" rx="${rx}"/>` : '';
-  const pathEls = paths.map((d, i) =>
-    `<path d="${d}" fill="${iconColor}"${paths.length > 1 && i === 0 ? ' opacity="0.4"' : ''}/>`
-  ).join('');
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">${bgEl}<svg x="${pad}" y="${pad}" width="${iconScale}" height="${iconScale}" viewBox="${viewBox}">${pathEls}</svg></svg>`;
+  const rx  = shape === 'circle' ? 50 : shape === 'rounded' ? 14 : 0;
+  const bgEl = shape !== 'none'
+    ? `<rect width="100" height="100" fill="${bgColor}" rx="${rx}"/>`
+    : '';
+
+  let iconEl = '';
+
+  if (S.source === 'fa' && S.paths) {
+    const pathEls = S.paths.map((d, i) =>
+      `<path d="${d}" fill="${iconColor}"${S.paths.length > 1 && i === 0 ? ' opacity="0.4"' : ''}/>`
+    ).join('');
+    iconEl = `<svg x="${pad}" y="${pad}" width="${iconScale}" height="${iconScale}" viewBox="${S.viewBox}">${pathEls}</svg>`;
+
+  } else if (S.source !== 'fa' && S.emojiSvg) {
+    // Embed emoji as image using data URI — preserves all colors and gradients
+    const uri = svgDataUri(S.emojiSvg);
+    iconEl = `<image x="${pad}" y="${pad}" width="${iconScale}" height="${iconScale}" href="${uri}" preserveAspectRatio="xMidYMid meet"/>`;
+  }
+
+  return `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 100 100">${bgEl}${iconEl}</svg>`;
 }
 
-// ── Render preview ────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────────────────────
+// Render preview
+// ─────────────────────────────────────────────────────────────────────────────
 function render() {
   const container = document.getElementById('preview-container');
   const placeholder = document.getElementById('placeholder');
+  const loading = document.getElementById('preview-loading');
   const meta = document.getElementById('preview-meta');
   const old = container.querySelector('svg.live');
 
   if (!S.valid) {
     placeholder.style.display = '';
+    loading.classList.remove('visible');
     meta.style.display = 'none';
     if (old) old.remove();
     return;
   }
 
   placeholder.style.display = 'none';
+  loading.classList.remove('visible');
   meta.style.display = '';
 
   const svg = new DOMParser().parseFromString(buildSVG(), 'image/svg+xml').documentElement;
@@ -809,28 +980,74 @@ function render() {
   svg.style.cssText = 'width:180px;height:180px;display:block;';
   if (old) old.replaceWith(svg); else container.appendChild(svg);
 
-  document.getElementById('meta-icon').textContent = S.iconName;
-  document.getElementById('meta-color').textContent = S.iconColor;
-  document.getElementById('meta-bg').textContent = S.bgShape === 'none' ? 'transparent' : S.bgColor;
+  const sourceLabels = { fa: 'Font Awesome', noto: 'Noto', twemoji: 'Twemoji' };
+  document.getElementById('meta-source').textContent = sourceLabels[S.source];
+  document.getElementById('meta-icon').textContent   = S.iconName;
+  document.getElementById('meta-bg').textContent     = S.bgShape === 'none' ? 'transparent' : S.bgColor;
 }
 
-// ── Icon name input ───────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────────────────────
+// Icon input handler (FA + emoji, shared input element)
+// ─────────────────────────────────────────────────────────────────────────────
 let iconTimer;
+
 document.getElementById('icon-input').addEventListener('input', function() {
   clearTimeout(iconTimer);
-  const name = this.value.trim().toLowerCase().replace(/^fa[srbl]?-/, '');
-  iconTimer = setTimeout(() => {
-    if (!name) { S.valid = false; err(false); render(); return; }
-    const r = findIcon(name);
-    if (r) { Object.assign(S, { iconName: name, paths: r.paths, viewBox: r.viewBox, valid: true }); err(false); }
-    else { S.valid = false; err(true); }
-    render();
-  }, 300);
+  const raw = this.value;
+  const val = raw.trim();
+
+  if (!val) {
+    S.valid = false; err(false); render(); return;
+  }
+
+  if (S.source === 'fa') {
+    // FA: debounce lookup
+    const name = val.toLowerCase().replace(/^fa[srbl]?-/, '');
+    iconTimer = setTimeout(() => {
+      const r = findFAIcon(name);
+      if (r) {
+        Object.assign(S, { iconName: name, paths: r.paths, viewBox: r.viewBox, valid: true });
+        err(false);
+      } else {
+        S.valid = false; err(true);
+      }
+      render();
+    }, 300);
+
+  } else {
+    // Emoji: debounce fetch
+    iconTimer = setTimeout(async () => {
+      // Show loading state
+      const container = document.getElementById('preview-container');
+      const placeholder = document.getElementById('placeholder');
+      const loading = document.getElementById('preview-loading');
+      const old = container.querySelector('svg.live');
+      placeholder.style.display = 'none';
+      if (old) old.remove();
+      loading.classList.add('visible');
+      err(false);
+
+      try {
+        const svgText = await fetchEmojiSvg(val);
+        S.iconName = val;
+        S.emojiSvg = svgText;
+        S.valid    = true;
+        err(false);
+      } catch(e) {
+        S.valid    = false;
+        S.emojiSvg = null;
+        err(true);
+      }
+      render();
+    }, 450);
+  }
 });
 
 function err(show) { document.getElementById('error-msg').classList.toggle('visible', show); }
 
-// ── Shape + scale ─────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────────────────────
+// Shape + scale
+// ─────────────────────────────────────────────────────────────────────────────
 function setShape(s) {
   S.bgShape = s;
   document.querySelectorAll('.shape-btn').forEach(b => b.classList.toggle('active', b.dataset.shape === s));
@@ -843,7 +1060,9 @@ document.getElementById('icon-scale').addEventListener('input', function() {
   render();
 });
 
-// ── Resolution presets ────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────────────────────
+// Resolution presets
+// ─────────────────────────────────────────────────────────────────────────────
 function setPreset(px) {
   document.getElementById('custom-w').value = px;
   document.getElementById('custom-h').value = px;
@@ -857,17 +1076,25 @@ function setPreset(px) {
   )
 );
 
-// ── Standard export ───────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────────────────────
+// Standard export
+// ─────────────────────────────────────────────────────────────────────────────
 function exportAs(fmt) {
-  if (!S.valid) { alert('Enter a valid icon name first.'); return; }
+  if (!S.valid) { alert('Enter a valid icon or emoji first.'); return; }
   const w = +document.getElementById('custom-w').value || 128;
   const h = +document.getElementById('custom-h').value || 128;
-  const fname = `${S.iconName}-icon`;
-  if (fmt === 'svg') { dl(URL.createObjectURL(new Blob([buildSVG()], { type: 'image/svg+xml' })), fname + '.svg'); return; }
+  const fname = S.source === 'fa' ? `${S.iconName}-icon` : `emoji-icon`;
+
+  if (fmt === 'svg') {
+    dl(URL.createObjectURL(new Blob([buildSVG()], { type: 'image/svg+xml' })), fname + '.svg');
+    return;
+  }
   svgToPngBlob(buildSVG(), w, h).then(b => dl(URL.createObjectURL(b), `${fname}-${w}x${h}.png`));
 }
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────────────────────
+// Helpers
+// ─────────────────────────────────────────────────────────────────────────────
 function dl(url, name) { Object.assign(document.createElement('a'), { href: url, download: name }).click(); }
 
 function svgToPngBlob(svgMarkup, w, h) {
@@ -887,12 +1114,10 @@ function svgToPngBlob(svgMarkup, w, h) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// ── Custom color picker ───────────────────────────────────────────────────────
+// Custom color picker
 // ─────────────────────────────────────────────────────────────────────────────
-
 const CP = { target: null, h: 0, s: 1, v: 1 };
 
-// Color math
 function hsvToRgb(h, s, v) {
   h = ((h % 360) + 360) % 360;
   const i = Math.floor(h / 60), f = h / 60 - i;
@@ -905,78 +1130,65 @@ function rgbToHsv(r, g, b) {
   r /= 255; g /= 255; b /= 255;
   const max = Math.max(r,g,b), min = Math.min(r,g,b), d = max - min;
   let h = 0;
-  const s = max === 0 ? 0 : d / max, v = max;
+  const s = max === 0 ? 0 : d/max, v = max;
   if (d) {
-    if      (max === r) h = ((g - b) / d + 6) % 6;
-    else if (max === g) h = (b - r) / d + 2;
-    else                h = (r - g) / d + 4;
+    if      (max === r) h = ((g-b)/d + 6) % 6;
+    else if (max === g) h = (b-r)/d + 2;
+    else                h = (r-g)/d + 4;
     h *= 60;
   }
   return { h, s, v };
 }
 
 function hexToRgb(hex) {
-  const n = hex.replace('#', '');
+  const n = hex.replace('#','');
   if (!/^[0-9a-fA-F]{6}$/.test(n)) return null;
-  const v = parseInt(n, 16);
-  return { r: (v >> 16) & 255, g: (v >> 8) & 255, b: v & 255 };
+  const v = parseInt(n,16);
+  return { r: (v>>16)&255, g: (v>>8)&255, b: v&255 };
 }
 
 function rgbToHex(r, g, b) {
-  return '#' + [r, g, b].map(v => Math.round(Math.max(0, Math.min(255, v))).toString(16).padStart(2, '0')).join('');
+  return '#' + [r,g,b].map(v => Math.round(Math.max(0,Math.min(255,v))).toString(16).padStart(2,'0')).join('');
 }
 
 function cpHex() {
-  const { r, g, b } = hsvToRgb(CP.h, CP.s, CP.v);
-  return rgbToHex(r, g, b);
+  const {r,g,b} = hsvToRgb(CP.h, CP.s, CP.v);
+  return rgbToHex(r,g,b);
 }
 
-// Draw saturation/value gradient onto canvas
 function cpDraw() {
   const canvas = document.getElementById('cp-canvas');
   const ctx = canvas.getContext('2d');
   const W = canvas.width, H = canvas.height;
-  const hueHex = (() => { const {r,g,b} = hsvToRgb(CP.h,1,1); return rgbToHex(r,g,b); })();
-
-  const gH = ctx.createLinearGradient(0, 0, W, 0);
-  gH.addColorStop(0, '#fff');
-  gH.addColorStop(1, hueHex);
-  ctx.fillStyle = gH;
-  ctx.fillRect(0, 0, W, H);
-
-  const gV = ctx.createLinearGradient(0, 0, 0, H);
-  gV.addColorStop(0, 'transparent');
-  gV.addColorStop(1, '#000');
-  ctx.fillStyle = gV;
-  ctx.fillRect(0, 0, W, H);
+  const {r,g,b} = hsvToRgb(CP.h,1,1);
+  const hueHex = rgbToHex(r,g,b);
+  const gH = ctx.createLinearGradient(0,0,W,0);
+  gH.addColorStop(0,'#fff'); gH.addColorStop(1,hueHex);
+  ctx.fillStyle = gH; ctx.fillRect(0,0,W,H);
+  const gV = ctx.createLinearGradient(0,0,0,H);
+  gV.addColorStop(0,'transparent'); gV.addColorStop(1,'#000');
+  ctx.fillStyle = gV; ctx.fillRect(0,0,W,H);
 }
 
-// Move the circle cursor to current S/V
 function cpMoveCursor() {
   const wrap = document.getElementById('cp-canvas-wrap');
   const cur  = document.getElementById('cp-cursor');
-  cur.style.left = (CP.s * wrap.offsetWidth)  + 'px';
-  cur.style.top  = ((1 - CP.v) * wrap.offsetHeight) + 'px';
+  cur.style.left = (CP.s * wrap.offsetWidth) + 'px';
+  cur.style.top  = ((1-CP.v) * wrap.offsetHeight) + 'px';
 }
 
-// Push current HSV to every piece of UI and to state
 function cpSync() {
   const hex = cpHex();
-
-  // Popup UI
   document.getElementById('cp-preview-fill').style.background = hex;
   document.getElementById('cp-hex-popup').value = hex;
   document.getElementById('cp-hue').value = CP.h;
   cpMoveCursor();
-
-  // Row swatch + inline hex
   if (CP.target) {
     document.getElementById(`cp-fill-${CP.target}`).style.background = hex;
     document.getElementById(`cp-hex-${CP.target}`).value = hex;
   }
 }
 
-// Commit current color to state and re-render icon
 function cpCommit() {
   const hex = cpHex();
   if (CP.target === 'icon') S.iconColor = hex;
@@ -985,40 +1197,33 @@ function cpCommit() {
   render();
 }
 
-// Load a hex string into CP (optionally update hue)
 function cpFromHex(hex, updateHue) {
   const rgb = hexToRgb(hex);
   if (!rgb) return false;
   const hsv = rgbToHsv(rgb.r, rgb.g, rgb.b);
   if (updateHue) CP.h = hsv.h;
-  CP.s = hsv.s;
-  CP.v = hsv.v;
+  CP.s = hsv.s; CP.v = hsv.v;
   return true;
 }
 
-// Position popup near an anchor element, smart-flip if near edges
 function cpPosition(anchor) {
   const popup = document.getElementById('cp-popup');
   const r = anchor.getBoundingClientRect();
   const pw = 220, ph = 230;
   const vw = window.innerWidth, vh = window.innerHeight;
-  let top  = r.bottom + 6;
-  let left = r.left;
+  let top = r.bottom + 6, left = r.left;
   if (top + ph > vh - 8) top = r.top - ph - 6;
   if (left + pw > vw - 8) left = vw - pw - 8;
   if (left < 8) left = 8;
   if (top < 8)  top  = 8;
-  popup.style.top  = top  + 'px';
-  popup.style.left = left + 'px';
+  popup.style.top = top + 'px'; popup.style.left = left + 'px';
 }
 
 function cpOpen(target) {
   CP.target = target;
   cpFromHex(target === 'icon' ? S.iconColor : S.bgColor, true);
-  cpDraw();
-  cpSync();
-  const popup = document.getElementById('cp-popup');
-  popup.classList.add('visible');
+  cpDraw(); cpSync();
+  document.getElementById('cp-popup').classList.add('visible');
   document.getElementById(`cp-row-${target}`).classList.add('open');
   cpPosition(document.getElementById(`cp-row-${target}`));
 }
@@ -1029,16 +1234,16 @@ function cpClose() {
   CP.target = null;
 }
 
-// ── Swatch buttons ────────────────────────────────────────────────────────────
 document.querySelectorAll('.cp-swatch').forEach(btn => {
   btn.addEventListener('click', e => {
     e.stopPropagation();
     const t = btn.dataset.target;
+    // Don't open icon color picker when in emoji mode
+    if (t === 'icon' && S.source !== 'fa') return;
     CP.target === t ? cpClose() : cpOpen(t);
   });
 });
 
-// ── Canvas drag (mouse + touch) ───────────────────────────────────────────────
 const canvasWrap = document.getElementById('cp-canvas-wrap');
 
 function cpCanvasPick(e) {
@@ -1051,43 +1256,31 @@ function cpCanvasPick(e) {
 }
 
 canvasWrap.addEventListener('mousedown', e => {
-  e.preventDefault();
-  cpCanvasPick(e);
+  e.preventDefault(); cpCanvasPick(e);
   const move = e => cpCanvasPick(e);
-  const up   = () => { window.removeEventListener('mousemove', move); window.removeEventListener('mouseup', up); };
-  window.addEventListener('mousemove', move);
-  window.addEventListener('mouseup', up);
+  const up   = () => { window.removeEventListener('mousemove',move); window.removeEventListener('mouseup',up); };
+  window.addEventListener('mousemove', move); window.addEventListener('mouseup', up);
 });
 
 canvasWrap.addEventListener('touchstart', e => {
-  e.preventDefault();
-  cpCanvasPick(e);
+  e.preventDefault(); cpCanvasPick(e);
   const move = e => { e.preventDefault(); cpCanvasPick(e); };
-  const end  = () => { window.removeEventListener('touchmove', move); window.removeEventListener('touchend', end); };
+  const end  = () => { window.removeEventListener('touchmove',move); window.removeEventListener('touchend',end); };
   window.addEventListener('touchmove', move, { passive: false });
   window.addEventListener('touchend', end);
 }, { passive: false });
 
-// ── Hue slider ────────────────────────────────────────────────────────────────
 document.getElementById('cp-hue').addEventListener('input', function() {
-  CP.h = +this.value;
-  cpDraw();
-  cpCommit();
+  CP.h = +this.value; cpDraw(); cpCommit();
 });
 
-// ── Hex input inside popup ────────────────────────────────────────────────────
 document.getElementById('cp-hex-popup').addEventListener('input', function() {
   let v = this.value.trim();
   if (!v.startsWith('#')) v = '#' + v;
-  if (/^#[0-9a-fA-F]{6}$/.test(v)) {
-    cpFromHex(v, true);
-    cpDraw();
-    cpCommit();
-  }
+  if (/^#[0-9a-fA-F]{6}$/.test(v)) { cpFromHex(v,true); cpDraw(); cpCommit(); }
 });
 
-// ── Inline hex inputs on the rows ─────────────────────────────────────────────
-['icon', 'bg'].forEach(target => {
+['icon','bg'].forEach(target => {
   const hexEl = document.getElementById(`cp-hex-${target}`);
 
   hexEl.addEventListener('input', function() {
@@ -1097,40 +1290,32 @@ document.getElementById('cp-hex-popup').addEventListener('input', function() {
       if (target === 'icon') S.iconColor = v;
       if (target === 'bg')   S.bgColor   = v;
       document.getElementById(`cp-fill-${target}`).style.background = v;
-      // If picker is open for this target, sync it too
-      if (CP.target === target) {
-        cpFromHex(v, true);
-        cpDraw();
-        cpSync();
-      }
+      if (CP.target === target) { cpFromHex(v,true); cpDraw(); cpSync(); }
       render();
     }
   });
 
-  // Focus the inline input → open picker for that target
   hexEl.addEventListener('focus', function() {
+    if (target === 'icon' && S.source !== 'fa') return;
     if (CP.target !== target) cpOpen(target);
   });
 });
 
-// ── Close on outside click ────────────────────────────────────────────────────
 document.addEventListener('click', e => {
   if (!CP.target) return;
   const popup = document.getElementById('cp-popup');
-  const isInside = popup.contains(e.target) ||
+  const inside = popup.contains(e.target) ||
     ['icon','bg'].some(t => document.getElementById(`cp-row-${t}`).contains(e.target));
-  if (!isInside) cpClose();
+  if (!inside) cpClose();
 });
 
-// Reposition popup on resize / scroll
 window.addEventListener('resize', () => {
   if (CP.target) cpPosition(document.getElementById(`cp-row-${CP.target}`));
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
-// ── Android XML builders ──────────────────────────────────────────────────────
+// Android XML builders (FA only)
 // ─────────────────────────────────────────────────────────────────────────────
-
 function buildForegroundXML() {
   const [,,vbW,vbH] = S.viewBox.split(' ').map(Number);
   const safeDp  = 72 * (S.iconScale / 100);
@@ -1199,12 +1384,42 @@ function buildColorsXML() {
 }
 
 function buildReadme(withMonochrome) {
-  const monoSection = withMonochrome
-    ? `YES — <monochrome> element included in ic_launcher.xml and ic_launcher_round.xml.
+  const isFa     = S.source === 'fa';
+  const srcLabel = { fa: 'Font Awesome', noto: 'Noto Emoji', twemoji: 'Twemoji' }[S.source];
+
+  const monoSection = !isFa
+    ? `N/A — emoji sources do not produce VectorDrawable XML files.`
+    : withMonochrome
+      ? `YES — <monochrome> element included in ic_launcher.xml and ic_launcher_round.xml.
    Android 13+ (API 33) will use this layer for Material You themed icons,
    tinting it automatically to match the device wallpaper color scheme.`
-    : `NO  — not included. Re-export with "Include Material You / Themed Icons"
+      : `NO  — not included. Re-export with "Include Material You / Themed Icons"
    checked to add the <monochrome> layer for Android 13+ support.`;
+
+  const xmlNote = isFa
+    ? `├── mipmap-anydpi-v26/
+  │   ├── ic_launcher.xml           Adaptive icon${withMonochrome ? ' + monochrome (API 33+)' : ' (API 26+)'}
+  │   └── ic_launcher_round.xml     Adaptive icon${withMonochrome ? ' + monochrome (API 33+)' : ' (API 26+)'}
+  ├── drawable/
+  │   ├── ic_launcher_background.xml   Solid color background layer
+  │   └── ic_launcher_foreground.xml   Vector foreground (scale: ${S.iconScale}%)
+  ├── drawable-v24/
+  │   └── ic_launcher_foreground.xml   Foreground — explicit API 24+ copy
+  └── values/
+      └── colors.xml                   ic_launcher_background color resource`
+    : `  (No XML files — VectorDrawable adaptive icons require FA source.
+   PNG mipmaps are sufficient for all Android versions.)`;
+
+  const emojiNote = !isFa ? `
+NOTE FOR EMOJI ICONS
+  Emoji sources (Noto, Twemoji) export PNG mipmaps only. Android's
+  VectorDrawable format does not support the gradients and raster
+  references used in emoji SVGs. For full adaptive icon XML support
+  (API 26+ shape masking, Material You theming), use the
+  Font Awesome source instead.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+` : '';
 
   return `╔══════════════════════════════════════════════════════════════╗
 ║           ANDROID ICON PACKAGE — s17 Labs Icon Maker         ║
@@ -1212,8 +1427,9 @@ function buildReadme(withMonochrome) {
 ╚══════════════════════════════════════════════════════════════╝
 
 ICON DETAILS
-  Name:              ${S.iconName}
-  Icon color:        ${S.iconColor}
+  Source:            ${srcLabel}
+  Name / Emoji:      ${S.iconName}
+  Icon color:        ${isFa ? S.iconColor : '(emoji own colors)'}
   Background color:  ${S.bgColor}
   Icon scale:        ${S.iconScale}% of adaptive safe zone
   Material You:      ${monoSection}
@@ -1236,8 +1452,8 @@ PACKAGE STRUCTURE
 
   res/
   ├── mipmap-mdpi/
-  │   ├── ic_launcher.png            48 × 48 px   (square, current shape)
-  │   └── ic_launcher_round.png      48 × 48 px   (circular)
+  │   ├── ic_launcher.png            48 × 48 px
+  │   └── ic_launcher_round.png      48 × 48 px
   ├── mipmap-hdpi/
   │   ├── ic_launcher.png            72 × 72 px
   │   └── ic_launcher_round.png      72 × 72 px
@@ -1250,21 +1466,12 @@ PACKAGE STRUCTURE
   ├── mipmap-xxxhdpi/
   │   ├── ic_launcher.png           192 × 192 px
   │   └── ic_launcher_round.png     192 × 192 px
-  ├── mipmap-anydpi-v26/
-  │   ├── ic_launcher.xml           Adaptive icon${withMonochrome ? ' + monochrome (API 33+)' : ' (API 26+)'}
-  │   └── ic_launcher_round.xml     Adaptive icon${withMonochrome ? ' + monochrome (API 33+)' : ' (API 26+)'}
-  ├── drawable/
-  │   ├── ic_launcher_background.xml   Solid color background layer
-  │   └── ic_launcher_foreground.xml   Vector foreground (scale: ${S.iconScale}%)
-  ├── drawable-v24/
-  │   └── ic_launcher_foreground.xml   Foreground — explicit API 24+ copy
-  └── values/
-      └── colors.xml                   ic_launcher_background color resource
+  ${xmlNote}
 
   play_store_icon.png                  512 × 512 px  (Play Store listing)
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
+${emojiNote}${isFa ? `
 ABOUT ADAPTIVE ICONS  (Android 8.0 / API 26+)
 
   Adaptive icons use two separate layers that the launcher composites:
@@ -1289,26 +1496,29 @@ MATERIAL YOU / THEMED ICONS  (Android 13 / API 33+)
   and applies a tint derived from the device's wallpaper palette
   (Material You dynamic color) automatically — no code change needed.
 
-  Supported launchers include: Pixel Launcher, One UI 5+, and most
-  AOSP-based launchers on Android 13+.
+  Supported launchers: Pixel Launcher, One UI 5+, and most AOSP
+  launchers on Android 13+.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-` : ''}
+` : ''}` : ''}
 Generated by s17 Labs Icon Maker — https://s17labs.github.io/tools/icon-maker/
 Part of s17 Labs Tools  — https://s17labs.github.io/tools/
 Source Code              — https://github.com/s17labs/tools`;
 }
 
-// ── Android export ────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────────────────────
+// Android export
+// ─────────────────────────────────────────────────────────────────────────────
 async function exportAndroid() {
-  if (!S.valid) { alert('Enter a valid icon name first.'); return; }
-  if (typeof JSZip === 'undefined') { alert('JSZip failed to load. Check your connection.'); return; }
+  if (!S.valid) { alert('Enter a valid icon or emoji first.'); return; }
+  if (typeof JSZip === 'undefined') { alert('JSZip failed to load.'); return; }
 
-  const withMonochrome = document.getElementById('material-toggle').checked;
-  const btn = document.getElementById('android-btn');
-  const progressWrap = document.getElementById('progress-wrap');
-  const progressFill = document.getElementById('progress-fill');
-  const progressLabel = document.getElementById('progress-label');
+  const isFa           = S.source === 'fa';
+  const withMonochrome = isFa && document.getElementById('material-toggle').checked;
+  const btn            = document.getElementById('android-btn');
+  const progressWrap   = document.getElementById('progress-wrap');
+  const progressFill   = document.getElementById('progress-fill');
+  const progressLabel  = document.getElementById('progress-label');
 
   btn.disabled = true;
   btn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> <span><span class="android-label">Building package…</span></span>`;
@@ -1322,7 +1532,9 @@ async function exportAndroid() {
   try {
     const zip = new JSZip();
     const res = zip.folder('res');
-    const safeName = S.iconName.replace(/-/g, '_');
+    const safeName = isFa
+      ? S.iconName.replace(/-/g, '_')
+      : 'emoji_icon';
 
     const densities = [
       ['mdpi',    48],
@@ -1354,19 +1566,22 @@ async function exportAndroid() {
     const playBlob = await svgToPngBlob(buildSVG(), 512, 512);
     zip.file('play_store_icon.png', playBlob);
 
-    setProgress(86, 'Building adaptive icon XMLs…');
-    const adaptiveXML = buildAdaptiveIconXML(withMonochrome);
-    res.folder('mipmap-anydpi-v26').file('ic_launcher.xml', adaptiveXML);
-    res.folder('mipmap-anydpi-v26').file('ic_launcher_round.xml', adaptiveXML);
+    // XML files: FA only
+    if (isFa) {
+      setProgress(86, 'Building adaptive icon XMLs…');
+      const adaptiveXML = buildAdaptiveIconXML(withMonochrome);
+      res.folder('mipmap-anydpi-v26').file('ic_launcher.xml', adaptiveXML);
+      res.folder('mipmap-anydpi-v26').file('ic_launcher_round.xml', adaptiveXML);
 
-    setProgress(89, 'Building vector drawables…');
-    const fgXML = buildForegroundXML();
-    res.folder('drawable').file('ic_launcher_background.xml', buildBackgroundXML());
-    res.folder('drawable').file('ic_launcher_foreground.xml', fgXML);
-    res.folder('drawable-v24').file('ic_launcher_foreground.xml', fgXML);
+      setProgress(89, 'Building vector drawables…');
+      const fgXML = buildForegroundXML();
+      res.folder('drawable').file('ic_launcher_background.xml', buildBackgroundXML());
+      res.folder('drawable').file('ic_launcher_foreground.xml', fgXML);
+      res.folder('drawable-v24').file('ic_launcher_foreground.xml', fgXML);
 
-    setProgress(92, 'Building values/colors.xml…');
-    res.folder('values').file('colors.xml', buildColorsXML());
+      setProgress(92, 'Building values/colors.xml…');
+      res.folder('values').file('colors.xml', buildColorsXML());
+    }
 
     zip.file('README.txt', buildReadme(withMonochrome));
 
@@ -1375,8 +1590,10 @@ async function exportAndroid() {
       type: 'blob', compression: 'DEFLATE', compressionOptions: { level: 6 }
     });
 
-    const monoNote = withMonochrome ? ' + Material You' : '';
-    setProgress(100, `Done — ${densities.length * 2 + 1} images + XMLs${monoNote}`);
+    const suffix = isFa
+      ? ` + XMLs${withMonochrome ? ' + Material You' : ''}`
+      : ' (PNG only)';
+    setProgress(100, `Done — ${densities.length * 2 + 1} images${suffix}`);
 
     showAndroidPreview(densities);
     dl(URL.createObjectURL(zipBlob), `${safeName}-android-icons.zip`);
@@ -1396,7 +1613,9 @@ async function exportAndroid() {
   }
 }
 
-// ── Android preview thumbnails ────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────────────────────
+// Android preview thumbnails
+// ─────────────────────────────────────────────────────────────────────────────
 async function showAndroidPreview(densities) {
   const container = document.getElementById('android-sizes-row');
   const panel = document.getElementById('android-preview');
@@ -1427,7 +1646,9 @@ async function showAndroidPreview(densities) {
   panel.classList.add('visible');
 }
 
-// ── Init ──────────────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────────────────────
+// Init
+// ─────────────────────────────────────────────────────────────────────────────
 setPreset(128);
 </script>
 </body>
