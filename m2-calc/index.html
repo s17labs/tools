@@ -3,15 +3,15 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>m² Calc</title>
+<title>m² Calc | s17 Labs Tools</title>
 <meta name="description" content="A fast, mobile-friendly construction cost calculator. Enter your area, rate per m², and get an instant cost breakdown.">
 <link rel="icon" type="image/x-icon" href="https://s17labs.github.io/tools/m2-calc/favicon.ico">
-<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Aldrich&display=swap" rel="stylesheet">
 <style>
 /* ── THEMES ─────────────────────────────────────────────── */
 :root {
-  --amber: #f59e0b;
-  --amber-hot: #fbbf24;
+  --amber: #ff4136;
+  --amber-hot: #ff6a61;
   --red: #ef4444;
   --green: #22c55e;
   --radius: 10px;
@@ -46,7 +46,7 @@ html { font-size:16px; }
 body {
   background: var(--bg);
   color: var(--chalk);
-  font-family: 'Barlow', sans-serif;
+  font-family: Verdana, sans-serif;
   min-height: 100dvh;
   transition: background 0.25s, color 0.25s;
 }
@@ -54,7 +54,7 @@ body {
 /* ── HEADER ─────────────────────────────────────────────── */
 header {
   background: var(--card);
-  border-bottom: 2.5px solid var(--amber);
+  border-bottom: 1px solid rgba(255,255,255,0.07);
   padding: 0 14px;
   height: 54px;
   display: flex;
@@ -67,9 +67,9 @@ header {
   transition: background 0.25s;
 }
 .logo {
-  font-family: 'Barlow Condensed', sans-serif;
-  font-weight: 900;
-  font-size: 21px;
+  font-family: 'Aldrich', sans-serif;
+  font-weight: 700;
+  font-size: 20px;
   letter-spacing: 2px;
   color: var(--amber);
   text-transform: uppercase;
@@ -173,7 +173,7 @@ input, select {
   border: 1.5px solid var(--border);
   border-radius: 8px;
   color: var(--chalk);
-  font-family: 'Barlow', sans-serif;
+  font-family: Verdana, sans-serif;
   font-size: 16px;
   padding: 11px 13px;
   outline: none;
