@@ -1,197 +1,310 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>s17 Labs Tools</title>
-    
-    <meta name="description" content="A collection of fast, privacy-first, browser-based utility tools for creators and developers by s17 Labs.">
-    
-    <link rel="icon" type="image/x-icon" href="https://s17labs.github.io/src/assets/favicon.ico">
-    
-    <link href="https://fonts.googleapis.com/css2?family=Aldrich&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    
-    <style>
-        :root {
-            --bg-color: #0e0e10;
-            --accent: #ff4136;
-            --accent-muted: rgba(255, 65, 54, 0.1);
-            --text-primary: #f1f1f1;
-            --text-secondary: #868686;
-            --card-bg: #18181b;
-            --border: #3f3f46;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>s17 Labs Tools</title>
+  <meta name="description" content="A suite of lightweight, browser-based utilities designed to run entirely on your device. Fast, open-source, and privacy-first.">
+  <meta property="og:title" content="s17 Labs Tools">
+  <meta property="og:description" content="A suite of lightweight, browser-based utilities designed to run entirely on your device.">
+  <meta property="og:site_name" content="s17 Labs">
+  <link rel="icon" type="image/x-icon" href="https://s17labs.github.io/src/assets/favicon.ico">
+  <link href="https://fonts.googleapis.com/css2?family=Aldrich&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css">
+  <style>
+    :root {
+      --primary:        #0e0e10;
+      --accent:         #ff4136;
+      --primary-text:   #f1f1f1;
+      --secondary-text: #868686;
+      --btn-bg:         #1a1a1c;
+      --surface-2:      #1a1a1c;
+      --border:         rgba(255,255,255,0.07);
+      --accent-dim:     rgba(255,65,54,0.12);
+      --radius:         4px;
+      --t:              0.25s ease;
+    }
 
-        * { box-sizing: border-box; }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-primary);
-            margin: 0;
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-            align-items: center;
-            padding: 40px 20px;
-        }
+    body {
+      background: var(--primary);
+      color: var(--primary-text);
+      font-family: Verdana, sans-serif;
+      font-size: 1rem;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      -webkit-font-smoothing: antialiased;
+    }
 
-        h1 { 
-            font-family: 'Aldrich', sans-serif; 
-            margin: 0 0 1.5rem 0; 
-            font-size: 2.2rem; 
-            text-align: center; 
-            letter-spacing: 1px;
-            color: var(--text-primary);
-        }
+    body::-webkit-scrollbar { display: none; }
+    a { color: inherit; text-decoration: none; transition: var(--t); }
 
-        .hero-section {
-            max-width: 650px;
-            text-align: center;
-            margin-bottom: 50px;
-        }
+    .page {
+      width: 100%;
+      max-width: 680px;
+      padding: 0 20px;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+    }
 
-        .hero-section p {
-            color: var(--text-secondary);
-            line-height: 1.6;
-            font-size: 1.05rem;
-            margin: 0;
-        }
+    /* Header */
+    .site-header {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin: 2.5rem 0 0.4rem;
+      position: relative;
+      min-height: 2.8rem;
+    }
 
-        .tools-list {
-            width: 100%;
-            max-width: 700px;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
+    .back-link {
+      position: absolute; left: 0;
+      background: none; border: none;
+      color: var(--secondary-text); cursor: pointer;
+      font-size: 1rem; font-family: Verdana, sans-serif;
+      display: inline-flex; align-items: center; gap: 0.45rem;
+      padding: 0; transition: var(--t); text-decoration: none;
+    }
 
-        .tool-card {
-            background: var(--card-bg);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 24px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            transition: border-color 0.2s, transform 0.2s;
-            text-decoration: none;
-            color: inherit;
-        }
+    .back-link:hover { color: var(--accent); }
 
-        .tool-card:hover {
-            border-color: var(--accent);
-            background: linear-gradient(90deg, var(--card-bg) 0%, var(--accent-muted) 100%);
-            transform: translateY(-2px);
-        }
+    .site-header h1 {
+      font-family: Aldrich, sans-serif;
+      font-size: 1.8rem; line-height: 1;
+      display: inline-flex; align-items: center; gap: 0.25em;
+    }
 
-        .tool-info h3 {
-            margin: 0 0 8px 0;
-            font-size: 1.25rem;
-            color: var(--text-primary);
-        }
+    .cube {
+      display: inline-block;
+      width: 0.82em; height: 0.82em;
+      background: var(--accent);
+      transform: translateY(-0.12em);
+      flex-shrink: 0;
+    }
 
-        .tool-info p {
-            margin: 0;
-            font-size: 0.95rem;
-            color: var(--text-secondary);
-            line-height: 1.4;
-        }
+    .site-desc {
+      text-align: center;
+      color: var(--secondary-text);
+      font-size: 0.95rem;
+      margin: 0.6rem 0 2.5rem;
+      line-height: 1.6;
+      max-width: 520px;
+      align-self: center;
+    }
 
-        .tool-link-icon {
-            font-size: 1.2rem;
-            color: var(--accent);
-            padding-left: 20px;
-            transition: transform 0.2s;
-        }
+    /* Tag filter */
+    .filter-row {
+      display: flex;
+      gap: 0.4rem;
+      flex-wrap: wrap;
+      margin-bottom: 1.25rem;
+    }
 
-        .tool-card:hover .tool-link-icon {
-            transform: translateX(5px);
-        }
+    .filter-btn {
+      padding: 0.3rem 0.8rem;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 99px;
+      color: var(--secondary-text);
+      font-size: 0.75rem;
+      font-family: Verdana, sans-serif;
+      cursor: pointer;
+      transition: all var(--t);
+    }
 
-        footer {
-            margin-top: auto;
-            text-align: center;
-            padding: 60px 0 20px 0;
-            font-size: 0.85rem;
-            color: var(--text-secondary);
-        }
+    .filter-btn:hover { border-color: rgba(255,65,54,0.4); color: var(--primary-text); }
+    .filter-btn.active { border-color: var(--accent); background: var(--accent-dim); color: var(--primary-text); }
 
-        .stealth-link { color: inherit; text-decoration: none; font-weight: 600; }
-        .stealth-link:hover { color: var(--accent); text-decoration: underline; }
+    /* Tool list */
+    .tool-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
 
-        footer a.source-link { 
-            color: var(--accent);
-            text-decoration: none; 
-            font-weight: 600;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            margin-top: 10px;
-        }
-        footer a.source-link:hover { text-decoration: underline; }
-    </style>
+    .tool-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.25rem 1.4rem;
+      background: rgba(255,255,255,0.02);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      transition: all var(--t);
+      cursor: pointer;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .tool-item:hover {
+      background: linear-gradient(90deg, rgba(255,65,54,0) 0%, rgba(255,65,54,0.18) 100%);
+      transform: translateX(6px);
+      border-color: rgba(255,65,54,0.2);
+    }
+
+    .tool-item-left { display: flex; align-items: center; gap: 1rem; min-width: 0; }
+
+    .tool-item-icon {
+      width: 40px; height: 40px;
+      background: var(--accent-dim);
+      border: 1px solid rgba(255,65,54,0.2);
+      border-radius: var(--radius);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--accent);
+      font-size: 0.95rem;
+      flex-shrink: 0;
+      transition: all var(--t);
+    }
+
+    .tool-item:hover .tool-item-icon {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
+
+    .tool-item-info { min-width: 0; }
+
+    .tool-item-info h3 {
+      font-family: Verdana, sans-serif;
+      font-size: 0.95rem;
+      font-weight: bold;
+      margin: 0 0 0.2rem;
+      color: var(--primary-text);
+    }
+
+    .tool-item-info p {
+      margin: 0;
+      font-size: 0.8rem;
+      color: var(--secondary-text);
+      line-height: 1.45;
+      padding-right: 1rem;
+    }
+
+    .tool-item-arrow {
+      font-size: 1rem;
+      color: var(--secondary-text);
+      flex-shrink: 0;
+      transition: all var(--t);
+    }
+
+    .tool-item:hover .tool-item-arrow {
+      color: var(--accent);
+      transform: translateX(3px);
+    }
+
+    /* Tool tag */
+    .tool-tag {
+      display: inline-block;
+      font-size: 0.62rem;
+      padding: 0.1rem 0.45rem;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--border);
+      border-radius: 99px;
+      color: var(--secondary-text);
+      margin-top: 0.3rem;
+      font-family: 'Courier New', monospace;
+      text-transform: lowercase;
+    }
+
+    /* Footer */
+    .footer {
+      width: 100%;
+      padding: 2rem 0 1.5rem;
+      color: var(--secondary-text);
+      opacity: 0.65;
+      font-size: 0.95rem;
+      text-align: center;
+      margin-top: auto;
+    }
+
+    .footer a:hover, .footer a:active { color: var(--accent); text-decoration: underline; }
+
+    @media (max-width: 580px) {
+      .site-header h1 { font-size: 1.5rem; }
+      .tool-item { padding: 1rem; }
+      .tool-item-info p { display: none; }
+    }
+  </style>
 </head>
 <body>
 
-    <div class="hero-section">
-        <h1>s17 Labs Tools</h1>
-        <p>
-            A suite of lightweight, browser-based utilities designed to run entirely on your device. 
-            We build fast, open-source tools for creators and developers, ensuring your data remains 
-            secure, private, and always in your control.
-        </p>
-    </div>
+<div class="page">
 
-    <div class="tools-list">
-        
-        <a href="./icon-maker/" class="tool-card">
-            <div class="tool-info">
-                <h3>Icon Maker</h3>
-                <p>Generate custom icons from Font Awesome. Control colors, shape, and scale — export as SVG, PNG, or a full Android launcher package.</p>
-            </div>
-            <div class="tool-link-icon">
-                <i class="fa-solid fa-arrow-right-long"></i>
-            </div>
-        </a>
-        <a href="./image-resizer/" class="tool-card">
-            <div class="tool-info">
-                <h3>Image Resizer</h3>
-                <p>Batch resize images locally with aspect ratio locking and high-quality output.</p>
-            </div>
-            <div class="tool-link-icon">
-                <i class="fa-solid fa-arrow-right-long"></i>
-            </div>
-        </a>
-        <a href="./svg-to-png/" class="tool-card">
-            <div class="tool-info">
-                <h3>SVG to PNG</h3>
-                <p>Convert vector graphics to high-quality transparent PNGs locally in your browser.</p>
-            </div>
-            <div class="tool-link-icon">
-                <i class="fa-solid fa-arrow-right-long"></i>
-            </div>
-        </a>
-        <a href="./case-converter/" class="tool-card">
-            <div class="tool-info">
-                <h3>Case Converter</h3>
-                <p>Convert strings between various programming conventions and writing formats.</p>
-            </div>
-            <div class="tool-link-icon">
-                <i class="fa-solid fa-arrow-right-long"></i>
-            </div>
-        </a>
+  <div class="site-header">
+    <h1><span class="cube"></span> s17 Labs Tools</h1>
+  </div>
 
+  <p class="site-desc">A suite of lightweight, browser-based utilities that run entirely on your device. Fast, open-source, and privacy-first — your data never leaves your browser.</p>
+
+  <div class="tool-list">
+
+    <a href="https://s17labs.github.io/tools/image-resizer/" class="tool-item">
+      <div class="tool-item-left">
+        <div class="tool-item-icon"><i class="fa-solid fa-image"></i></div>
+        <div class="tool-item-info">
+          <h3>Image Resizer</h3>
+          <p>Batch resize images locally with aspect ratio locking and high-quality output.</p>
+          <span class="tool-tag">images</span>
         </div>
+      </div>
+      <i class="fa-solid fa-arrow-right tool-item-arrow"></i>
+    </a>
 
-    <footer>
-        <p>&copy; <span id="year"></span> <a href="https://s17labs.github.io" class="stealth-link">s17 Labs</a></p>
-        <a href="https://github.com/s17labs/tools" class="source-link"><i class="fa-brands fa-github"></i> Source Code</a>
-    </footer>
+    <a href="https://s17labs.github.io/tools/svg-to-png/" class="tool-item">
+      <div class="tool-item-left">
+        <div class="tool-item-icon"><i class="fa-solid fa-bezier-curve"></i></div>
+        <div class="tool-item-info">
+          <h3>SVG to PNG</h3>
+          <p>Convert vector graphics to high-quality transparent PNGs locally in your browser.</p>
+          <span class="tool-tag">images</span>
+          <span class="tool-tag">conversion</span>
+        </div>
+      </div>
+      <i class="fa-solid fa-arrow-right tool-item-arrow"></i>
+    </a>
 
-    <script>
-        document.getElementById('year').textContent = new Date().getFullYear();
-    </script>
+    <a href="https://s17labs.github.io/tools/case-converter/" class="tool-item">
+      <div class="tool-item-left">
+        <div class="tool-item-icon"><i class="fa-solid fa-font"></i></div>
+        <div class="tool-item-info">
+          <h3>Case Converter</h3>
+          <p>Convert strings between various programming conventions and writing formats.</p>
+          <span class="tool-tag">text</span>
+          <span class="tool-tag">dev</span>
+        </div>
+      </div>
+      <i class="fa-solid fa-arrow-right tool-item-arrow"></i>
+    </a>
+
+    <a href="https://s17labs.github.io/tools/icon-maker/" class="tool-item">
+      <div class="tool-item-left">
+        <div class="tool-item-icon"><i class="fa-solid fa-icons"></i></div>
+        <div class="tool-item-info">
+          <h3>Icon Maker</h3>
+          <p>Generate and export custom icons from Font Awesome, Noto Emoji, or Twemoji. Includes full Android launcher package export.</p>
+          <span class="tool-tag">icons</span>
+          <span class="tool-tag">android</span>
+          <span class="tool-tag">design</span>
+        </div>
+      </div>
+      <i class="fa-solid fa-arrow-right tool-item-arrow"></i>
+    </a>
+
+  </div>
+
+  <footer class="footer">
+    © <script>document.write(new Date().getFullYear())</script> <b>s17 Labs</b>
+    &bull;
+    <a href="https://github.com/s17labs/tools" target="_blank">
+      <i class="fa-brands fa-github"></i> Source Code
+    </a>
+  </footer>
+
+</div>
 </body>
 </html>

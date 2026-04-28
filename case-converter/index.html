@@ -1,349 +1,434 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Case Converter | s17 Labs Tools</title>
-    
-    <meta name="description" content="A fast, free, and secure case converter by s17 Labs. Convert text to camelCase, snake_case, PascalCase, and more instantly in your browser.">
-    
-    <link rel="icon" type="image/x-icon" href="https://s17labs.github.io/src/assets/favicon.ico">
-    <link href="https://fonts.googleapis.com/css2?family=Aldrich&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    
-    <style>
-        :root {
-            --bg-color: #0e0e10;
-            --accent: #ff4136;
-            --accent-muted: rgba(255, 65, 54, 0.1);
-            --text-primary: #f1f1f1;
-            --text-secondary: #868686;
-            --card-bg: #18181b;
-            --input-bg: #27272a;
-            --border: #3f3f46;
-            --blue-action: #0074d9;
-            --green-action: #2ecc40;
-            --red-action: #ff4136;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Case Converter | s17 Labs Tools</title>
+  <meta name="description" content="Convert strings between 15 programming and writing conventions — camelCase, snake_case, kebab-case, PascalCase, and more.">
+  <meta property="og:title" content="Case Converter | s17 Labs Tools">
+  <meta property="og:description" content="Convert strings between 15 programming and writing conventions — camelCase, snake_case, kebab-case, and more.">
+  <meta property="og:site_name" content="s17 Labs Tools">
+  <link rel="icon" type="image/x-icon" href="https://s17labs.github.io/src/assets/favicon.ico">
+  <link href="https://fonts.googleapis.com/css2?family=Aldrich&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css">
+  <style>
+    :root {
+      --primary:        #0e0e10;
+      --accent:         #ff4136;
+      --primary-text:   #f1f1f1;
+      --secondary-text: #868686;
+      --btn-bg:         #1a1a1c;
+      --surface-2:      #1a1a1c;
+      --surface-3:      #222226;
+      --border:         rgba(255,255,255,0.07);
+      --accent-dim:     rgba(255,65,54,0.12);
+      --radius:         4px;
+      --t:              0.25s ease;
+    }
 
-        * { box-sizing: border-box; }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-primary);
-            margin: 0;
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-            align-items: center;
-            padding: 20px;
-        }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-        h1 { font-family: 'Aldrich', sans-serif; margin: 0 0 1.5rem 0; font-size: 1.75rem; text-align: center; letter-spacing: 1px; color: var(--text-primary); }
-        h1 a { text-decoration: none; color: inherit; }
+    body {
+      background: var(--primary);
+      color: var(--primary-text);
+      font-family: Verdana, sans-serif;
+      font-size: 1rem;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      -webkit-font-smoothing: antialiased;
+    }
 
-        .container {
-            background: var(--card-bg);
-            padding: 2rem;
-            border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-            width: 100%;
-            max-width: 800px;
-            margin-bottom: 25px;
-            border: 1px solid var(--border);
-        }
+    body::-webkit-scrollbar { display: none; }
+    a { color: inherit; text-decoration: none; transition: var(--t); }
 
-        .editor-container { position: relative; width: 100%; margin-bottom: 20px; }
-        
-        textarea {
-            width: 100%;
-            height: 240px;
-            background: var(--bg-color);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            color: var(--text-primary);
-            font-family: 'Fira Code', monospace;
-            font-size: 15px;
-            padding: 15px 55px 15px 15px;
-            resize: vertical;
-            outline: none;
-            transition: border-color 0.2s;
-        }
-        textarea:focus { border-color: var(--accent); }
+    .page {
+      width: 100%;
+      max-width: 680px;
+      padding: 0 20px;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+    }
 
-        /* Action Buttons Overlay */
-        .input-overlay-actions {
-            position: absolute;
-            right: 12px;
-            bottom: 12px;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            z-index: 10;
-        }
+    .tool-header {
+      width: 100%;
+      text-align: center;
+      margin: 2.5rem 0 0.4rem;
+      position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 2.8rem;
+    }
 
-        .overlay-btn {
-            background-color: var(--input-bg);
-            border: 1px solid var(--border);
-            color: var(--text-secondary);
-            border-radius: 6px;
-            width: 38px;
-            height: 38px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            position: relative;
-        }
+    .back-link {
+      position: absolute; left: 0;
+      background: none; border: none;
+      color: var(--secondary-text); cursor: pointer;
+      font-size: 1rem; font-family: Verdana, sans-serif;
+      display: inline-flex; align-items: center; gap: 0.45rem;
+      padding: 0; transition: var(--t); text-decoration: none;
+    }
 
-        .overlay-btn:hover { color: var(--text-primary); border-color: var(--text-secondary); }
+    .back-link:hover { color: var(--accent); }
 
-        /* Tooltip Toast - Matched to s17 style */
-        .overlay-btn::after {
-            content: attr(data-tooltip);
-            position: absolute;
-            right: 48px;
-            background: #000;
-            color: #fff;
-            padding: 6px 12px;
-            border-radius: 6px;
-            font-size: 12px;
-            font-family: -apple-system, sans-serif;
-            font-weight: 600;
-            white-space: nowrap;
-            opacity: 0;
-            pointer-events: none;
-            transition: all 0.2s ease;
-            transform: translateX(10px);
-            border: 1px solid var(--border);
-            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
-        }
+    .tool-header h1 {
+      font-family: Aldrich, sans-serif;
+      font-size: 1.8rem; line-height: 1;
+      display: inline-flex; align-items: center; gap: 0.25em;
+    }
 
-        .overlay-btn:hover::after { opacity: 1; transform: translateX(0); }
+    .cube {
+      display: inline-block;
+      width: 0.82em; height: 0.82em;
+      background: var(--accent);
+      transform: translateY(-0.12em);
+      flex-shrink: 0;
+    }
 
-        /* Success States */
-        .success-paste { color: var(--blue-action) !important; border-color: var(--blue-action) !important; background: rgba(0, 116, 217, 0.1) !important; }
-        .success-copy { color: var(--green-action) !important; border-color: var(--green-action) !important; background: rgba(46, 204, 64, 0.1) !important; }
-        .success-clear { color: var(--red-action) !important; border-color: var(--red-action) !important; background: rgba(255, 65, 54, 0.1) !important; }
+    .tool-desc {
+      text-align: center;
+      color: var(--secondary-text);
+      font-size: 0.95rem;
+      margin: 0.6rem 0 2rem;
+      line-height: 1.55;
+    }
 
-        /* Action Grid */
-        .action-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+    .panel {
+      background: rgba(255,255,255,0.02);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.4rem;
+      margin-bottom: 1rem;
+    }
 
-        .btn {
-            padding: 14px 8px;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            font-weight: 500;
-            font-family: 'Fira Code', monospace;
-            cursor: pointer;
-            font-size: 0.8rem;
-            background: var(--input-bg);
-            color: var(--text-primary);
-            transition: background 0.2s, border-color 0.2s;
-            text-align: center;
-        }
-        .btn:hover { background: var(--accent-muted); border-color: var(--accent); color: var(--accent); }
+    .panel-title {
+      font-family: Aldrich, sans-serif;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: var(--secondary-text);
+      margin-bottom: 1.1rem;
+    }
 
-        .btn-more {
-            background: var(--card-bg);
-            border: 1px solid var(--accent);
-            color: var(--accent);
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-        }
+    /* Textarea */
+    textarea {
+      width: 100%;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      color: var(--primary-text);
+      font-family: 'Courier New', monospace;
+      font-size: 0.88rem;
+      padding: 0.8rem;
+      resize: vertical;
+      min-height: 90px;
+      outline: none;
+      transition: border-color var(--t);
+      line-height: 1.5;
+    }
 
-        .extra-cases { display: none; }
-        .show-extra .extra-cases { display: contents; }
+    textarea:focus { border-color: rgba(255,65,54,0.5); }
+    textarea::placeholder { color: var(--secondary-text); opacity: 0.45; }
 
-        .info-box {
-            text-align: center;
-            padding: 24px;
-            background: var(--accent-muted);
-            border-radius: 12px;
-            width: 100%;
-            max-width: 800px;
-            border: 1px solid rgba(255, 65, 54, 0.2);
-        }
+    /* Case format buttons */
+    .case-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+    }
 
-        .info-box h3 { font-size: 1.1rem; font-weight: 700; margin: 0 0 8px 0; color: var(--accent); }
-        .info-box p { font-size: 0.9rem; margin-bottom: 16px; color: var(--text-primary); line-height: 1.4; }
+    .case-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.15rem;
+      padding: 0.5rem 0.75rem;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      cursor: pointer;
+      transition: all var(--t);
+      color: var(--secondary-text);
+      font-family: 'Courier New', monospace;
+      font-size: 0.8rem;
+      white-space: nowrap;
+      text-align: left;
+    }
 
-        .btn-secondary {
-            display: inline-block;
-            padding: 10px 20px;
-            background: transparent;
-            color: var(--accent);
-            text-decoration: none;
-            border-radius: 8px;
-            font-weight: 700;
-            font-size: 0.85rem;
-            border: 2px solid var(--accent);
-            transition: all 0.2s ease;
-        }
-        .btn-secondary:hover { background: rgba(255, 65, 54, 0.1); }
-        .btn-secondary:active { background: var(--accent); color: #fff; }
+    .case-btn:hover { border-color: rgba(255,65,54,0.4); color: var(--primary-text); }
+    .case-btn.active { border-color: var(--accent); background: var(--accent-dim); color: var(--primary-text); }
 
-        footer {
-            margin-top: auto;
-            text-align: center;
-            padding: 40px 0 20px 0;
-            font-size: 0.85rem;
-            color: var(--text-secondary);
-        }
+    .case-btn .case-preview {
+      font-size: 0.65rem;
+      color: var(--secondary-text);
+      opacity: 0.6;
+      font-family: 'Courier New', monospace;
+    }
 
-        .stealth-link { color: inherit; text-decoration: none; font-weight: 600; }
-        .stealth-link:hover { color: var(--accent); text-decoration: underline; }
+    .case-btn.active .case-preview { opacity: 0.8; }
 
-        footer a.source-link { 
-            color: var(--accent);
-            text-decoration: none; 
-            font-weight: 600;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            margin-top: 10px;
-        }
-        footer a.source-link:hover { text-decoration: underline; }
+    /* Output */
+    .output-wrap { position: relative; }
 
-        @media (max-width: 600px) {
-            .action-grid { grid-template-columns: repeat(2, 1fr); }
-            .overlay-btn::after { display: none; }
-        }
-    </style>
+    textarea#output {
+      resize: none;
+      min-height: 90px;
+      cursor: default;
+    }
+
+    .copy-btn {
+      position: absolute;
+      top: 0.5rem; right: 0.5rem;
+      background: var(--surface-3);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      color: var(--secondary-text);
+      padding: 0.3rem 0.65rem;
+      font-size: 0.72rem;
+      cursor: pointer;
+      font-family: Verdana, sans-serif;
+      transition: all var(--t);
+      display: flex; align-items: center; gap: 0.35rem;
+    }
+
+    .copy-btn:hover { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+    /* More tools */
+    .more-tools { width: 100%; margin: 2.5rem 0 0; padding: 2rem 0 0; border-top: 1px solid var(--border); text-align: center; }
+    .more-tools h3 { font-family: Aldrich, sans-serif; font-size: 1.1rem; margin-bottom: 0.55rem; }
+    .more-tools p { color: var(--secondary-text); font-size: 0.9rem; margin-bottom: 1.4rem; line-height: 1.5; }
+
+    .more-tools-btn {
+      display: inline-flex; align-items: center; gap: 0.6rem;
+      font-size: 1rem; background: var(--btn-bg);
+      border: 1px solid transparent; color: var(--secondary-text);
+      cursor: pointer; padding: 0.75rem 1.4rem;
+      border-radius: var(--radius); font-family: Verdana, sans-serif;
+      transition: var(--t); text-decoration: none;
+    }
+
+    .more-tools-btn:hover { background: var(--accent); color: var(--primary-text); }
+
+    .footer { width: 100%; padding: 2rem 0 1.5rem; color: var(--secondary-text); opacity: 0.65; font-size: 0.95rem; text-align: center; margin-top: auto; }
+    .footer a:hover, .footer a:active { color: var(--accent); text-decoration: underline; }
+
+    @media (max-width: 580px) {
+      .tool-header h1 { font-size: 1.5rem; }
+      .case-btn { padding: 0.4rem 0.6rem; font-size: 0.75rem; }
+    }
+  </style>
 </head>
-<body id="body-wrapper">
+<body>
 
-<div class="container">
-    <h1><a href="../">Case Converter</a></h1>
-    
-    <div class="editor-container">
-        <textarea id="text-input" placeholder="Enter text here..."></textarea>
-        
-        <div class="input-overlay-actions">
-            <button class="overlay-btn" id="paste-btn" data-tooltip="Paste Text">
-                <i class="fa-solid fa-paste"></i>
-            </button>
-            <button class="overlay-btn" id="copy-btn" data-tooltip="Copy Text">
-                <i class="fa-solid fa-copy"></i>
-            </button>
-            <button class="overlay-btn" id="clear-btn" data-tooltip="Clear All">
-                <i class="fa-solid fa-trash-can"></i>
-            </button>
-        </div>
+<div class="page">
+
+  <div class="tool-header">
+    <a href="https://s17labs.github.io/tools/" class="back-link">
+      <i class="fa-solid fa-arrow-left"></i> Tools
+    </a>
+    <h1><span class="cube"></span> Case Converter</h1>
+  </div>
+  <p class="tool-desc">Convert text between 15 programming conventions and writing formats — instantly, in your browser.</p>
+
+  <!-- Input -->
+  <div class="panel">
+    <div class="panel-title">Input</div>
+    <textarea id="input" placeholder="Type or paste text here…" spellcheck="false" autocomplete="off"></textarea>
+  </div>
+
+  <!-- Format selector -->
+  <div class="panel">
+    <div class="panel-title">Format</div>
+    <div class="case-grid" id="case-grid"></div>
+  </div>
+
+  <!-- Output -->
+  <div class="panel">
+    <div class="panel-title">Output</div>
+    <div class="output-wrap">
+      <textarea id="output" readonly spellcheck="false"></textarea>
+      <button class="copy-btn" id="copy-btn" onclick="copyOutput()">
+        <i class="fa-regular fa-copy"></i> Copy
+      </button>
     </div>
+  </div>
 
-    <div class="action-grid" id="main-grid">
-        <button class="btn" onclick="convert('lower')">lowercase</button>
-        <button class="btn" onclick="convert('upper')">UPPERCASE</button>
-        <button class="btn" onclick="convert('camel')">camelCase</button>
-        <button class="btn" onclick="convert('pascal')">PascalCase</button>
-        <button class="btn" onclick="convert('snake')">snake_case</button>
-        <button class="btn" onclick="convert('kebab')">kebab-case</button>
-        <button class="btn" onclick="convert('title')">Title Case</button>
-        
-        <button class="btn btn-more" id="more-toggle" onclick="toggleMore()">
-            <i class="fa-solid fa-chevron-down"></i> More
-        </button>
-
-        <div class="extra-cases">
-            <button class="btn" onclick="convert('screaming')">SCREAMING_SNAKE</button>
-            <button class="btn" onclick="convert('cobol')">COBOL-CASE</button>
-            <button class="btn" onclick="convert('sentence')">Sentence case</button>
-            <button class="btn" onclick="convert('dot')">dot.case</button>
-            <button class="btn" onclick="convert('path')">path/case</button>
-            <button class="btn" onclick="convert('train')">Train-Case</button>
-            <button class="btn" onclick="convert('flat')">flatcase</button>
-            <button class="btn" onclick="convert('upperflat')">UPPERFLAT</button>
-        </div>
-    </div>
-</div>
-
-<div class="info-box">
+  <div class="more-tools">
     <h3>More s17 Labs Tools</h3>
-    <p>Discover more free and powerful utility tools designed for creators and developers.</p>
-    <a href="../" class="btn-secondary">View More Tools</a>
-</div>
+    <p>Discover more free, browser-based utilities designed for creators and developers.</p>
+    <a href="https://s17labs.github.io/tools/" class="more-tools-btn">
+      <i class="fa-solid fa-arrow-left"></i> View More Tools
+    </a>
+  </div>
 
-<footer>
-    <p>&copy; <span id="year"></span> <a href="https://s17labs.github.io" class="stealth-link">s17 Labs</a></p>
-    <a href="https://github.com/s17labs/tools" class="source-link"><i class="fa-brands fa-github"></i> Source Code</a>
-</footer>
+  <footer class="footer">
+    © <script>document.write(new Date().getFullYear())</script> <b>s17 Labs</b>
+    &bull;
+    <a href="https://github.com/s17labs/tools" target="_blank">
+      <i class="fa-brands fa-github"></i> Source Code
+    </a>
+  </footer>
+
+</div>
 
 <script>
-    const inputArea = document.getElementById('text-input');
-    const wrapper = document.getElementById('body-wrapper');
-    const toggleBtn = document.getElementById('more-toggle');
-    document.getElementById('year').textContent = new Date().getFullYear();
+  // ── Case conversion functions ─────────────────────────────────────────────
+  function words(str) {
+    return str
+      .replace(/([a-z])([A-Z])/g, '$1 $2')         // split camelCase
+      .replace(/([A-Z]+)([A-Z][a-z])/g, '$1 $2')   // split acronyms
+      .replace(/[-_./]+/g, ' ')                      // split separators
+      .replace(/[^a-zA-Z0-9\s]/g, '')               // strip special chars
+      .trim()
+      .split(/\s+/)
+      .filter(Boolean);
+  }
 
-    function toggleMore() {
-        const isShowing = wrapper.classList.toggle('show-extra');
-        toggleBtn.innerHTML = isShowing 
-            ? '<i class="fa-solid fa-chevron-up"></i> Less' 
-            : '<i class="fa-solid fa-chevron-down"></i> More';
-    }
+  const FORMATS = [
+    {
+      id:      'lower',
+      label:   'lowercase',
+      preview: 'hello world',
+      fn:      s => words(s).join(' ').toLowerCase()
+    },
+    {
+      id:      'upper',
+      label:   'UPPERCASE',
+      preview: 'HELLO WORLD',
+      fn:      s => words(s).join(' ').toUpperCase()
+    },
+    {
+      id:      'camel',
+      label:   'camelCase',
+      preview: 'helloWorld',
+      fn:      s => {
+        const w = words(s);
+        return w[0].toLowerCase() + w.slice(1).map(cap).join('');
+      }
+    },
+    {
+      id:      'pascal',
+      label:   'PascalCase',
+      preview: 'HelloWorld',
+      fn:      s => words(s).map(cap).join('')
+    },
+    {
+      id:      'snake',
+      label:   'snake_case',
+      preview: 'hello_world',
+      fn:      s => words(s).join('_').toLowerCase()
+    },
+    {
+      id:      'kebab',
+      label:   'kebab-case',
+      preview: 'hello-world',
+      fn:      s => words(s).join('-').toLowerCase()
+    },
+    {
+      id:      'title',
+      label:   'Title Case',
+      preview: 'Hello World',
+      fn:      s => words(s).map(cap).join(' ')
+    },
+    {
+      id:      'sentence',
+      label:   'Sentence case',
+      preview: 'Hello world',
+      fn:      s => {
+        const w = words(s);
+        if (!w.length) return '';
+        return cap(w[0]) + (w.slice(1).length ? ' ' + w.slice(1).join(' ').toLowerCase() : '');
+      }
+    },
+    {
+      id:      'screaming',
+      label:   'SCREAMING_SNAKE',
+      preview: 'HELLO_WORLD',
+      fn:      s => words(s).join('_').toUpperCase()
+    },
+    {
+      id:      'cobol',
+      label:   'COBOL-CASE',
+      preview: 'HELLO-WORLD',
+      fn:      s => words(s).join('-').toUpperCase()
+    },
+    {
+      id:      'dot',
+      label:   'dot.case',
+      preview: 'hello.world',
+      fn:      s => words(s).join('.').toLowerCase()
+    },
+    {
+      id:      'path',
+      label:   'path/case',
+      preview: 'hello/world',
+      fn:      s => words(s).join('/').toLowerCase()
+    },
+    {
+      id:      'train',
+      label:   'Train-Case',
+      preview: 'Hello-World',
+      fn:      s => words(s).map(cap).join('-')
+    },
+    {
+      id:      'flat',
+      label:   'flatcase',
+      preview: 'helloworld',
+      fn:      s => words(s).join('').toLowerCase()
+    },
+    {
+      id:      'upperflat',
+      label:   'UPPERFLAT',
+      preview: 'HELLOWORLD',
+      fn:      s => words(s).join('').toUpperCase()
+    },
+  ];
 
-    function convert(type) {
-        let str = inputArea.value.trim();
-        if (!str) return;
+  function cap(w) { return w.charAt(0).toUpperCase() + w.slice(1).toLowerCase(); }
 
-        const words = str.replace(/([a-z])([A-Z])/g, '$1 $2')
-                         .replace(/[._\-\/]/g, ' ')
-                         .toLowerCase()
-                         .split(/\s+/)
-                         .filter(w => w.length > 0);
+  // ── State ─────────────────────────────────────────────────────────────────
+  let activeFormat = FORMATS[4]; // snake_case default
 
-        let result = "";
-        switch(type) {
-            case 'lower': result = str.toLowerCase(); break;
-            case 'upper': result = str.toUpperCase(); break;
-            case 'camel': result = words.map((w, i) => i === 0 ? w : w.charAt(0).toUpperCase() + w.slice(1)).join(''); break;
-            case 'pascal': result = words.map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(''); break;
-            case 'snake': result = words.join('_'); break;
-            case 'kebab': result = words.join('-'); break;
-            case 'title': result = words.map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' '); break;
-            case 'screaming': result = words.join('_').toUpperCase(); break;
-            case 'cobol': result = words.join('-').toUpperCase(); break;
-            case 'sentence': result = words.map((w, i) => i === 0 ? w.charAt(0).toUpperCase() + w.slice(1) : w).join(' '); break;
-            case 'dot': result = words.join('.'); break;
-            case 'path': result = words.join('/'); break;
-            case 'train': result = words.map(w => w.charAt(0).toUpperCase() + w.slice(1)).join('-'); break;
-            case 'flat': result = words.join(''); break;
-            case 'upperflat': result = words.join('').toUpperCase(); break;
-        }
-        inputArea.value = result;
-    }
+  // ── Build format buttons ──────────────────────────────────────────────────
+  const grid = document.getElementById('case-grid');
 
-    function flashBtn(id, cls) {
-        const btn = document.getElementById(id);
-        const icon = btn.querySelector('i');
-        const originalIcon = icon.className;
-        btn.classList.add(cls);
-        icon.className = 'fa-solid fa-check';
-        setTimeout(() => { 
-            btn.classList.remove(cls); 
-            icon.className = originalIcon;
-        }, 1000);
-    }
+  FORMATS.forEach(fmt => {
+    const btn = document.createElement('button');
+    btn.className = 'case-btn' + (fmt.id === activeFormat.id ? ' active' : '');
+    btn.dataset.id = fmt.id;
+    btn.innerHTML = `<span>${fmt.label}</span><span class="case-preview">${fmt.preview}</span>`;
+    btn.addEventListener('click', () => {
+      activeFormat = fmt;
+      document.querySelectorAll('.case-btn').forEach(b => b.classList.toggle('active', b.dataset.id === fmt.id));
+      convert();
+    });
+    grid.appendChild(btn);
+  });
 
-    document.getElementById('paste-btn').onclick = async () => {
-        try {
-            const text = await navigator.clipboard.readText();
-            if (text) { inputArea.value = text; flashBtn('paste-btn', 'success-paste'); }
-        } catch (e) { alert("Clipboard permission required."); }
-    };
-    document.getElementById('copy-btn').onclick = () => {
-        if (!inputArea.value) return;
-        navigator.clipboard.writeText(inputArea.value);
-        flashBtn('copy-btn', 'success-copy');
-    };
-    document.getElementById('clear-btn').onclick = () => {
-        inputArea.value = "";
-        flashBtn('clear-btn', 'success-clear');
-    };
+  // ── Conversion ────────────────────────────────────────────────────────────
+  const inputEl  = document.getElementById('input');
+  const outputEl = document.getElementById('output');
+
+  function convert() {
+    const raw = inputEl.value;
+    outputEl.value = raw ? activeFormat.fn(raw) : '';
+  }
+
+  inputEl.addEventListener('input', convert);
+
+  // ── Copy ─────────────────────────────────────────────────────────────────
+  function copyOutput() {
+    const val = outputEl.value;
+    if (!val) return;
+    navigator.clipboard.writeText(val).then(() => {
+      const btn = document.getElementById('copy-btn');
+      btn.innerHTML = '<i class="fa-solid fa-check"></i> Copied';
+      setTimeout(() => { btn.innerHTML = '<i class="fa-regular fa-copy"></i> Copy'; }, 1800);
+    });
+  }
 </script>
 </body>
 </html>

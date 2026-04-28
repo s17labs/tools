@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!--
+  ╔══════════════════════════════════════════════════════╗
+  ║   s17 Labs Tools — Tool Template                     ║
+  ║   Duplicate this file into your tool's folder and    ║
+  ║   rename to index.html.                              ║
+  ║                                                      ║
+  ║   Checklist:                                         ║
+  ║   [ ] Update <title>                                 ║
+  ║   [ ] Update <meta> description + OG tags            ║
+  ║   [ ] Replace "Tool Name" in h1                      ║
+  ║   [ ] Replace .tool-desc text                        ║
+  ║   [ ] Build your panels inside .tool-body            ║
+  ║   [ ] Add your JS logic at the bottom                ║
+  ║   [ ] Add your tool card to tools/index.html         ║
+  ╚══════════════════════════════════════════════════════╝
+  -->
+
+  <title>Tool Name | s17 Labs Tools</title>
+  <meta name="description" content="One-sentence description of what this tool does.">
+  <meta property="og:title" content="Tool Name | s17 Labs Tools">
+  <meta property="og:description" content="One-sentence description of what this tool does.">
+  <meta property="og:site_name" content="s17 Labs Tools">
+  <link rel="icon" type="image/x-icon" href="https://s17labs.github.io/src/assets/favicon.ico">
+
+  <!-- Fonts & icons — keep these, they define the s17 design system -->
+  <link href="https://fonts.googleapis.com/css2?family=Aldrich&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css">
+
+  <!-- Optional: add jszip if your tool exports zip files -->
+  <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script> -->
+
+  <style>
+    /* ═══════════════════════════════════════════════════
+       DESIGN TOKENS — do not modify; shared across tools
+       ═══════════════════════════════════════════════════ */
+    :root {
+      --primary:        #0e0e10;   /* page background       */
+      --accent:         #ff4136;   /* s17 red               */
+      --primary-text:   #f1f1f1;   /* main text             */
+      --secondary-text: #868686;   /* muted text            */
+      --btn-bg:         #1a1a1c;   /* button background     */
+      --surface-2:      #1a1a1c;   /* input / panel surface */
+      --surface-3:      #222226;   /* deeper surface        */
+      --border:         rgba(255,255,255,0.07);
+      --accent-dim:     rgba(255,65,54,0.12);
+      --radius:         4px;
+      --t:              0.25s ease;
+    }
+
+    /* ═══════════════════════════════════════════════════
+       BASE RESET
+       ═══════════════════════════════════════════════════ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--primary);
+      color: var(--primary-text);
+      font-family: Verdana, sans-serif;
+      font-size: 1rem;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body::-webkit-scrollbar { display: none; }
+    a { color: inherit; text-decoration: none; transition: var(--t); }
+
+    /* ═══════════════════════════════════════════════════
+       PAGE WRAPPER
+       Change max-width to suit your tool:
+         640px  — simple, single-column tools
+         680px  — tools with wider content
+         900px  — two-column tools (like Icon Maker)
+       ═══════════════════════════════════════════════════ */
+    .page {
+      width: 100%;
+      max-width: 640px;   /* ← adjust as needed */
+      padding: 0 20px;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+    }
+
+    /* ═══════════════════════════════════════════════════
+       HEADER  (back link + centered title)
+       ═══════════════════════════════════════════════════ */
+    .tool-header {
+      width: 100%;
+      text-align: center;
+      margin: 2.5rem 0 0.4rem;
+      position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 2.8rem;
+    }
+
+    .back-link {
+      position: absolute; left: 0;
+      background: none; border: none;
+      color: var(--secondary-text); cursor: pointer;
+      font-size: 1rem; font-family: Verdana, sans-serif;
+      display: inline-flex; align-items: center; gap: 0.45rem;
+      padding: 0; transition: var(--t); text-decoration: none;
+    }
+
+    .back-link:hover { color: var(--accent); }
+
+    .tool-header h1 {
+      font-family: Aldrich, sans-serif;
+      font-size: 1.8rem; line-height: 1;
+      display: inline-flex; align-items: center; gap: 0.25em;
+    }
+
+    /* Red cube logo mark */
+    .cube {
+      display: inline-block;
+      width: 0.82em; height: 0.82em;
+      background: var(--accent);
+      transform: translateY(-0.12em);
+      flex-shrink: 0;
+    }
+
+    /* Subtitle below header */
+    .tool-desc {
+      text-align: center;
+      color: var(--secondary-text);
+      font-size: 0.95rem;
+      margin: 0.6rem 0 2rem;
+      line-height: 1.55;
+    }
+
+    /* ═══════════════════════════════════════════════════
+       PANEL  (card-style content block)
+       ═══════════════════════════════════════════════════ */
+    .panel {
+      background: rgba(255,255,255,0.02);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.4rem;
+      margin-bottom: 1rem;
+    }
+
+    .panel-title {
+      font-family: Aldrich, sans-serif;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: var(--secondary-text);
+      margin-bottom: 1.1rem;
+    }
+
+    /* ═══════════════════════════════════════════════════
+       FORM ELEMENTS
+       ═══════════════════════════════════════════════════ */
+    .field { display: flex; flex-direction: column; gap: 0.45rem; margin-bottom: 0.9rem; }
+    .field:last-child { margin-bottom: 0; }
+
+    label {
+      font-size: 0.74rem; color: var(--secondary-text);
+      text-transform: uppercase; letter-spacing: 0.09em;
+    }
+
+    /* Text / number inputs */
+    input[type="text"],
+    input[type="number"],
+    textarea {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      color: var(--primary-text);
+      font-family: 'Courier New', monospace;
+      font-size: 0.88rem;
+      padding: 0.6rem 0.8rem;
+      width: 100%; outline: none;
+      transition: border-color var(--t);
+    }
+
+    input[type="text"]:focus,
+    input[type="number"]:focus,
+    textarea:focus { border-color: rgba(255,65,54,0.5); }
+
+    input[type="text"]::placeholder,
+    textarea::placeholder { color: var(--secondary-text); opacity: 0.45; }
+
+    input[type="number"] { -moz-appearance: textfield; }
+    input[type="number"]::-webkit-outer-spin-button,
+    input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; }
+
+    textarea { resize: vertical; min-height: 90px; line-height: 1.5; }
+
+    /* Divider */
+    .divider { border: none; border-top: 1px solid var(--border); margin: 0.9rem 0; }
+
+    /* Range slider */
+    input[type="range"] {
+      width: 100%; -webkit-appearance: none;
+      height: 3px; background: var(--surface-3); border-radius: 99px; outline: none;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none; width: 13px; height: 13px;
+      background: var(--accent); border-radius: 50%; cursor: pointer;
+    }
+
+    /* ═══════════════════════════════════════════════════
+       DROP ZONE  (for file upload tools)
+       ═══════════════════════════════════════════════════ */
+    .drop-zone {
+      border: 2px dashed var(--border);
+      border-radius: var(--radius);
+      padding: 2.5rem 1.5rem;
+      text-align: center;
+      cursor: pointer;
+      transition: all var(--t);
+      background: rgba(255,255,255,0.01);
+      user-select: none;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .drop-zone:hover, .drop-zone.drag-over {
+      border-color: var(--accent);
+      background: var(--accent-dim);
+    }
+
+    .drop-zone i { font-size: 2rem; color: var(--secondary-text); margin-bottom: 0.75rem; display: block; transition: var(--t); }
+    .drop-zone:hover i, .drop-zone.drag-over i { color: var(--accent); }
+    .drop-zone p { color: var(--secondary-text); font-size: 0.88rem; margin: 0; }
+    .drop-zone span { font-size: 0.75rem; color: var(--secondary-text); opacity: 0.6; display: block; margin-top: 0.3rem; }
+
+    /* ═══════════════════════════════════════════════════
+       BUTTONS
+       ═══════════════════════════════════════════════════ */
+
+    /* Primary action button (full width) */
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 0.6rem;
+      font-size: 1rem;
+      background: var(--btn-bg); border: 1px solid transparent;
+      color: var(--secondary-text); cursor: pointer;
+      padding: 0.75rem 1.4rem;
+      border-radius: var(--radius);
+      font-family: Verdana, sans-serif;
+      transition: var(--t); width: 100%;
+    }
+
+    .btn:hover { background: var(--accent); color: var(--primary-text); }
+    .btn:disabled { opacity: 0.35; cursor: not-allowed; }
+    .btn:disabled:hover { background: var(--btn-bg); color: var(--secondary-text); }
+
+    /* Inline / small button */
+    .btn-sm {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      padding: 0.4rem 0.8rem;
+      background: var(--surface-2); border: 1px solid var(--border);
+      border-radius: var(--radius); color: var(--secondary-text);
+      font-size: 0.78rem; font-family: Verdana, sans-serif;
+      cursor: pointer; transition: all var(--t);
+    }
+
+    .btn-sm:hover { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+    /* Two-column export row */
+    .btn-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.55rem; }
+
+    /* Accent text inside buttons (e.g. file format label) */
+    .btn-fmt { font-family: Aldrich, sans-serif; font-size: 0.85rem; color: var(--accent); transition: color var(--t); }
+    .btn:hover .btn-fmt { color: #fff; }
+
+    /* ═══════════════════════════════════════════════════
+       STATUS / ERROR MESSAGE
+       ═══════════════════════════════════════════════════ */
+    .status-msg {
+      font-size: 0.75rem; min-height: 1.1em;
+      opacity: 0; transition: opacity var(--t);
+    }
+
+    .status-msg.error   { color: var(--accent); }
+    .status-msg.success { color: #3ddc84; }
+    .status-msg.visible { opacity: 1; }
+
+    /* ═══════════════════════════════════════════════════
+       MORE TOOLS SECTION  (keep as-is at bottom of every tool)
+       ═══════════════════════════════════════════════════ */
+    .more-tools {
+      width: 100%; margin: 2.5rem 0 0;
+      padding: 2rem 0 0; border-top: 1px solid var(--border); text-align: center;
+    }
+
+    .more-tools h3 { font-family: Aldrich, sans-serif; font-size: 1.1rem; margin-bottom: 0.55rem; }
+    .more-tools p { color: var(--secondary-text); font-size: 0.9rem; margin-bottom: 1.4rem; line-height: 1.5; }
+
+    .more-tools-btn {
+      display: inline-flex; align-items: center; gap: 0.6rem;
+      font-size: 1rem; background: var(--btn-bg);
+      border: 1px solid transparent; color: var(--secondary-text);
+      cursor: pointer; padding: 0.75rem 1.4rem;
+      border-radius: var(--radius); font-family: Verdana, sans-serif;
+      transition: var(--t); text-decoration: none;
+    }
+
+    .more-tools-btn:hover { background: var(--accent); color: var(--primary-text); }
+
+    /* ═══════════════════════════════════════════════════
+       FOOTER  (keep as-is)
+       ═══════════════════════════════════════════════════ */
+    .footer {
+      width: 100%; padding: 2rem 0 1.5rem;
+      color: var(--secondary-text); opacity: 0.65;
+      font-size: 0.95rem; text-align: center; margin-top: auto;
+    }
+
+    .footer a:hover, .footer a:active { color: var(--accent); text-decoration: underline; }
+
+    /* ═══════════════════════════════════════════════════
+       RESPONSIVE
+       ═══════════════════════════════════════════════════ */
+    @media (max-width: 580px) {
+      .tool-header h1 { font-size: 1.5rem; }
+      .btn-row { grid-template-columns: 1fr; }
+    }
+
+    /* ═══════════════════════════════════════════════════
+       YOUR TOOL-SPECIFIC STYLES BELOW THIS LINE
+       ═══════════════════════════════════════════════════ */
+
+  </style>
+</head>
+<body>
+
+<div class="page">
+
+  <!-- ── Header ─────────────────────────────────────── -->
+  <div class="tool-header">
+    <a href="https://s17labs.github.io/tools/" class="back-link">
+      <i class="fa-solid fa-arrow-left"></i> Tools
+    </a>
+    <h1><span class="cube"></span> Tool Name</h1>
+  </div>
+  <p class="tool-desc">One-sentence description of what this tool does and why it's useful.</p>
+
+  <!-- ── Tool body: add your panels here ────────────── -->
+  <div class="tool-body">
+
+    <!-- Example: input panel -->
+    <div class="panel">
+      <div class="panel-title">Input</div>
+
+      <!-- Drop zone (remove if not a file tool) -->
+      <div class="drop-zone" id="drop-zone">
+        <i class="fa-solid fa-cloud-arrow-up"></i>
+        <p>Drag &amp; drop files here, or click to select</p>
+        <span>Supported formats · batch supported</span>
+      </div>
+      <input type="file" id="file-input" style="display:none;" multiple>
+
+      <!-- OR: text input (remove if not needed) -->
+      <!--
+      <div class="field">
+        <label>Input Label</label>
+        <input type="text" id="my-input" placeholder="Enter value…">
+        <div class="status-msg error" id="error-msg">Something went wrong</div>
+      </div>
+      -->
+    </div>
+
+    <!-- Example: settings panel -->
+    <div class="panel">
+      <div class="panel-title">Settings</div>
+      <div class="field">
+        <label>Setting One</label>
+        <input type="number" id="setting-one" value="512" min="1">
+      </div>
+      <!-- Add more fields as needed -->
+    </div>
+
+    <!-- Example: action + output panel -->
+    <div class="panel">
+      <div class="panel-title">Export</div>
+      <div class="btn-row">
+        <button class="btn" onclick="doAction('format-a')">
+          <span class="btn-fmt">FMT</span> Export
+        </button>
+        <button class="btn" onclick="doAction('format-b')">
+          <span class="btn-fmt">FMT</span> Export
+        </button>
+      </div>
+    </div>
+
+  </div><!-- /.tool-body -->
+
+  <!-- ── More Tools (keep this) ─────────────────────── -->
+  <div class="more-tools">
+    <h3>More s17 Labs Tools</h3>
+    <p>Discover more free, browser-based utilities designed for creators and developers.</p>
+    <a href="https://s17labs.github.io/tools/" class="more-tools-btn">
+      <i class="fa-solid fa-arrow-left"></i> View More Tools
+    </a>
+  </div>
+
+  <!-- ── Footer (keep this) ─────────────────────────── -->
+  <footer class="footer">
+    © <script>document.write(new Date().getFullYear())</script> <b>s17 Labs</b>
+    &bull;
+    <a href="https://github.com/s17labs/tools" target="_blank">
+      <i class="fa-brands fa-github"></i> Source Code
+    </a>
+  </footer>
+
+</div><!-- /.page -->
+
+<!-- ════════════════════════════════════════════════════
+     YOUR TOOL JAVASCRIPT
+     ════════════════════════════════════════════════════ -->
+<script>
+  // ── State ─────────────────────────────────────────────────────────────────
+  // Define your tool's state object here
+  const S = {
+    // example fields:
+    // files: [],
+    // outputWidth: 512,
+    // valid: false,
+  };
+
+  // ── Drop zone setup (remove if not a file tool) ───────────────────────────
+  const dropZone = document.getElementById('drop-zone');
+  const fileInput = document.getElementById('file-input');
+
+  if (dropZone && fileInput) {
+    dropZone.addEventListener('click', () => fileInput.click());
+    dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+    dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+    dropZone.addEventListener('drop', e => {
+      e.preventDefault();
+      dropZone.classList.remove('drag-over');
+      handleFiles([...e.dataTransfer.files]);
+    });
+    fileInput.addEventListener('change', () => handleFiles([...fileInput.files]));
+  }
+
+  // ── File handler (remove or replace if not a file tool) ──────────────────
+  function handleFiles(files) {
+    // TODO: implement
+    console.log('Files received:', files);
+  }
+
+  // ── Action handler ────────────────────────────────────────────────────────
+  function doAction(format) {
+    // TODO: implement your export / action logic
+    console.log('Action called with format:', format);
+  }
+
+  // ── Helpers ───────────────────────────────────────────────────────────────
+
+  /** Trigger a file download */
+  function dl(url, name) {
+    Object.assign(document.createElement('a'), { href: url, download: name }).click();
+  }
+
+  /** Show/hide an error message element */
+  function showError(elId, show) {
+    document.getElementById(elId)?.classList.toggle('visible', show);
+  }
+
+  // ── Init ──────────────────────────────────────────────────────────────────
+  // Run any setup here
+</script>
+</body>
+</html>
